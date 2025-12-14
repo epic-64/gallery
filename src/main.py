@@ -25,16 +25,16 @@ class ImageProcessorApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Image Processing Tool")
-        self.root.geometry("1100x700")
+        self.root.geometry("1344x800")
         self.root.resizable(True, True)
         self.root.configure(bg="#f5f7fa")  # Modern light background
         self.root.minsize(1000, 650)
 
         # Center the window
         self.root.update_idletasks()
-        x = (self.root.winfo_screenwidth() // 2) - (1100 // 2)
-        y = (self.root.winfo_screenheight() // 2) - (700 // 2)
-        self.root.geometry(f"1100x700+{x}+{y}")
+        x = (self.root.winfo_screenwidth() // 2) - (1344 // 2)
+        y = (self.root.winfo_screenheight() // 2) - (800 // 2)
+        self.root.geometry(f"1344x800+{x}+{y}")
 
         # Variables
         self.folder_path = StringVar()
