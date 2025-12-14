@@ -64,9 +64,10 @@ class PreviewPanel:
         main_content = Frame(preview_container, bg="#fafbfc")
         main_content.pack(fill="both", expand=True)
 
-        # Left column - Directories (with scrollbar)
-        left_container = Frame(main_content, bg="#ecf0f1", relief="flat", bd=0)
-        left_container.pack(side="left", fill="both", expand=True, padx=(0, 5))
+        # Left column - Directories (with scrollbar) - narrower fixed width
+        left_container = Frame(main_content, bg="#ecf0f1", relief="flat", bd=0, width=250)
+        left_container.pack(side="left", fill="y", padx=(0, 5))
+        left_container.pack_propagate(False)  # Prevent the frame from shrinking to fit its contents
 
         left_canvas = Canvas(left_container, bg="#fafbfc", highlightthickness=0)
         left_scrollbar = Scrollbar(left_container, orient="vertical", command=left_canvas.yview)
