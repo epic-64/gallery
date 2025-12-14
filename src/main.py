@@ -270,15 +270,12 @@ class ImageProcessorApp:
         )
         self.config_summary_label.pack(fill="x", pady=(8, 0))
 
-        # Preview example
-        self.preview_example_label = Label(
+        # Preview example (container for styled components)
+        self.preview_example_label = Frame(
             self.naming_config_frame,
-            text="",
-            font=("Segoe UI", 9),
             bg="#ffffff",
-            fg="#27ae60",
         )
-        self.preview_example_label.pack(anchor="w", pady=(4, 0))
+        self.preview_example_label.pack(anchor="w", pady=(4, 0), fill="x")
 
         # Initialize the summary
         self._update_filename_preview()
@@ -345,20 +342,54 @@ class ImageProcessorApp:
 
         # Update summary
         mode_text = "Prefix" if number_mode == "prefix" else "Suffix"
-        summary = f"{mode_text}, separator: '{separator}'"
+        summary = f"Position: {mode_text}, separator: '{separator}'"
         self.config_summary_label.config(text=summary)
 
+        # Clear existing preview
+        for widget in self.preview_example_label.winfo_children():
+            widget.destroy()
+
         if not base_name:
-            self.preview_example_label.config(text="")
             return
 
-        # Generate example
+        # Generate single example with prominent styling
         if number_mode == "prefix":
-            example = f"📝 Example: 001{separator}{base_name}.jpg, 002{separator}{base_name}.jpg, ..."
+            example_name = f"001{separator}{base_name}"
         else:  # suffix
-            example = f"📝 Example: {base_name}{separator}001.jpg, {base_name}{separator}002.jpg, ..."
+            example_name = f"{base_name}{separator}001"
 
-        self.preview_example_label.config(text=example)
+        # Create a frame to hold the styled example
+        example_container = Frame(self.preview_example_label, bg="#ffffff")
+        example_container.pack(anchor="w")
+
+        # Label prefix
+        Label(
+            example_container,
+            text="📝 Example: ",
+            font=("Segoe UI", 9),
+            bg="#ffffff",
+            fg="#7f8c8d",
+        ).pack(side="left")
+
+        # Filename with background (without extension)
+        Label(
+            example_container,
+            text=example_name,
+            font=("Segoe UI", 10, "bold"),
+            bg="#e8f5e9",
+            fg="#27ae60",
+            padx=6,
+            pady=2,
+        ).pack(side="left")
+
+        # Extension without background
+        Label(
+            example_container,
+            text=".jpg",
+            font=("Segoe UI", 10, "bold"),
+            bg="#ffffff",
+            fg="#7f8c8d",
+        ).pack(side="left")
 
     def _open_naming_config(self):
         """Open a dialog to configure naming options."""
