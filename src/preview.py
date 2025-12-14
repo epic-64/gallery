@@ -85,8 +85,10 @@ class PreviewPanel:
         def on_left_mousewheel(event):
             left_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-        self.dirs_frame.bind("<Enter>", lambda e: left_canvas.bind_all("<MouseWheel>", on_left_mousewheel))
-        self.dirs_frame.bind("<Leave>", lambda e: left_canvas.unbind_all("<MouseWheel>"))
+        left_canvas.bind("<Enter>", lambda e: left_canvas.bind("<MouseWheel>", on_left_mousewheel))
+        left_canvas.bind("<Leave>", lambda e: left_canvas.unbind("<MouseWheel>"))
+        self.dirs_frame.bind("<Enter>", lambda e: left_canvas.bind("<MouseWheel>", on_left_mousewheel))
+        self.dirs_frame.bind("<Leave>", lambda e: left_canvas.unbind("<MouseWheel>"))
 
         # Right column - Images (with scrollbar)
         right_container = Frame(main_content, bg="#ecf0f1", relief="flat", bd=0)
@@ -108,8 +110,10 @@ class PreviewPanel:
         def on_right_mousewheel(event):
             right_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
-        self.images_frame.bind("<Enter>", lambda e: right_canvas.bind_all("<MouseWheel>", on_right_mousewheel))
-        self.images_frame.bind("<Leave>", lambda e: right_canvas.unbind_all("<MouseWheel>"))
+        right_canvas.bind("<Enter>", lambda e: right_canvas.bind("<MouseWheel>", on_right_mousewheel))
+        right_canvas.bind("<Leave>", lambda e: right_canvas.unbind("<MouseWheel>"))
+        self.images_frame.bind("<Enter>", lambda e: right_canvas.bind("<MouseWheel>", on_right_mousewheel))
+        self.images_frame.bind("<Leave>", lambda e: right_canvas.unbind("<MouseWheel>"))
 
         # Store canvas references for later use
         self.left_canvas = left_canvas
