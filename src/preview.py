@@ -30,40 +30,40 @@ class PreviewPanel:
     def _create_panel(self):
         """Create the preview panel UI structure."""
         # Header frame for title and refresh button
-        header_frame = Frame(self.parent, bg="#f0f0f0")
-        header_frame.pack(fill="x", pady=(0, 10))
+        header_frame = Frame(self.parent, bg="#ffffff")
+        header_frame.pack(fill="x", pady=(0, 15), padx=25)
 
         preview_label = Label(
-            header_frame, text="Folder Preview", font=("Segoe UI", 12, "bold"), bg="#f0f0f0", fg="#333333"
+            header_frame, text="📂 Folder Preview", font=("Segoe UI", 13, "bold"), bg="#ffffff", fg="#2c3e50"
         )
         preview_label.pack(side="left", anchor="w")
 
-        # Refresh button
+        # Refresh button with modern styling
         self.refresh_btn = Button(
             header_frame,
             text="🔄 Refresh",
             command=self._refresh_preview,
-            font=("Segoe UI", 9),
-            bg="#4CAF50",
+            font=("Segoe UI", 9, "bold"),
+            bg="#3498db",
             fg="white",
-            activebackground="#45a049",
+            activebackground="#2980b9",
             activeforeground="white",
             cursor="hand2",
             relief="flat",
-            padx=10,
-            pady=3,
+            padx=15,
+            pady=5,
             state="disabled",  # Initially disabled until a folder is selected
         )
         self.refresh_btn.pack(side="right", anchor="e")
 
         # Create a frame with border for the preview area
-        preview_container = Frame(self.parent, bg="#d0d0d0", relief="solid", bd=1)
-        preview_container.pack(fill="both", expand=True)
+        preview_container = Frame(self.parent, bg="#ecf0f1", relief="flat", bd=0)
+        preview_container.pack(fill="both", expand=True, padx=25, pady=(0, 25))
 
         # Create canvas with scrollbar
-        canvas = Canvas(preview_container, bg="#ffffff", highlightthickness=0)
+        canvas = Canvas(preview_container, bg="#fafbfc", highlightthickness=0)
         scrollbar = Scrollbar(preview_container, orient="vertical", command=canvas.yview)
-        self.preview_frame = Frame(canvas, bg="#ffffff")
+        self.preview_frame = Frame(canvas, bg="#fafbfc")
 
         self.preview_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
 
@@ -86,13 +86,13 @@ class PreviewPanel:
         """Display the default empty state message."""
         empty_message = Label(
             self.preview_frame,
-            text="No folder selected.\nUse 'Browse...' to select a folder.",
-            font=("Segoe UI", 10),
-            bg="#ffffff",
-            fg="#999999",
+            text="📂 No folder selected\n\nUse the 'Browse' button to select a folder",
+            font=("Segoe UI", 11),
+            bg="#fafbfc",
+            fg="#95a5a6",
             justify="center",
         )
-        empty_message.pack(pady=50)
+        empty_message.pack(pady=80)
 
     def _refresh_preview(self):
         """Refresh the current folder preview."""
@@ -118,7 +118,7 @@ class PreviewPanel:
 
         if not os.path.exists(folder_path):
             error_label = Label(
-                self.preview_frame, text="Folder not found", font=("Segoe UI", 10), bg="#ffffff", fg="#cc0000"
+                self.preview_frame, text="❌ Folder not found", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
             )
             error_label.pack(pady=50)
             return
@@ -129,14 +129,14 @@ class PreviewPanel:
             items.sort()
         except PermissionError:
             error_label = Label(
-                self.preview_frame, text="Permission denied", font=("Segoe UI", 10), bg="#ffffff", fg="#cc0000"
+                self.preview_frame, text="🔒 Permission denied", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
             )
             error_label.pack(pady=50)
             return
 
         if not items:
             empty_label = Label(
-                self.preview_frame, text="Empty folder", font=("Segoe UI", 10), bg="#ffffff", fg="#999999"
+                self.preview_frame, text="📭 Empty folder", font=("Segoe UI", 11), bg="#fafbfc", fg="#95a5a6"
             )
             empty_label.pack(pady=50)
             return
@@ -168,10 +168,10 @@ class PreviewPanel:
         if not directories and not images:
             no_content_label = Label(
                 self.preview_frame,
-                text="No directories or images found",
-                font=("Segoe UI", 10),
-                bg="#ffffff",
-                fg="#999999",
+                text="📂 No directories or images found",
+                font=("Segoe UI", 11),
+                bg="#fafbfc",
+                fg="#95a5a6",
             )
             no_content_label.pack(pady=50)
 
@@ -185,35 +185,42 @@ class PreviewPanel:
         dir_header = Label(
             self.preview_frame,
             text=f"📁 Directories ({len(directories)})",
-            font=("Segoe UI", 10, "bold"),
-            bg="#ffffff",
-            fg="#333333",
+            font=("Segoe UI", 11, "bold"),
+            bg="#fafbfc",
+            fg="#2c3e50",
             anchor="w",
         )
-        dir_header.pack(fill="x", padx=10, pady=(10, 5))
+        dir_header.pack(fill="x", padx=15, pady=(15, 8))
 
         for directory in directories[:10]:  # Limit to first 10
-            dir_frame = Frame(self.preview_frame, bg="#f8f8f8", relief="flat")
-            dir_frame.pack(fill="x", padx=15, pady=2)
+            dir_frame = Frame(
+                self.preview_frame,
+                bg="#ffffff",
+                relief="solid",
+                bd=1,
+                highlightbackground="#e1e8ed",
+                highlightthickness=1,
+            )
+            dir_frame.pack(fill="x", padx=20, pady=3)
 
             dir_path = os.path.join(folder_path, directory)
             dir_label = Label(
                 dir_frame,
                 text=f"  📂 {directory}",
-                font=("Segoe UI", 9),
-                bg="#f8f8f8",
-                fg="#0066cc",
+                font=("Segoe UI", 10),
+                bg="#ffffff",
+                fg="#3498db",
                 anchor="w",
                 cursor="hand2",
             )
-            dir_label.pack(fill="x", padx=5, pady=3)
+            dir_label.pack(fill="x", padx=10, pady=8)
 
             # Make clickable
             dir_label.bind("<Button-1>", lambda e, p=dir_path: self._open_in_explorer(p))
             dir_label.bind(
-                "<Enter>", lambda e, lbl=dir_label: lbl.config(fg="#004499", font=("Segoe UI", 9, "underline"))
+                "<Enter>", lambda e, lbl=dir_label: lbl.config(fg="#2980b9", font=("Segoe UI", 10, "underline"))
             )
-            dir_label.bind("<Leave>", lambda e, lbl=dir_label: lbl.config(fg="#0066cc", font=("Segoe UI", 9)))
+            dir_label.bind("<Leave>", lambda e, lbl=dir_label: lbl.config(fg="#3498db", font=("Segoe UI", 10)))
 
         if len(directories) > 10:
             more_label = Label(
@@ -236,12 +243,12 @@ class PreviewPanel:
         img_header = Label(
             self.preview_frame,
             text=f"🖼️ Images ({len(images)})",
-            font=("Segoe UI", 10, "bold"),
-            bg="#ffffff",
-            fg="#333333",
+            font=("Segoe UI", 11, "bold"),
+            bg="#fafbfc",
+            fg="#2c3e50",
             anchor="w",
         )
-        img_header.pack(fill="x", padx=10, pady=(15, 5))
+        img_header.pack(fill="x", padx=15, pady=(15, 8))
 
         # Show first 20 images with thumbnails
         for image_name in images[:20]:
@@ -267,9 +274,11 @@ class PreviewPanel:
         """
         image_path = os.path.join(folder_path, image_name)
 
-        # Create frame for this image
-        img_frame = Frame(self.preview_frame, bg="#fafafa", relief="solid", bd=1)
-        img_frame.pack(fill="x", padx=15, pady=3)
+        # Create frame for this image with modern card styling
+        img_frame = Frame(
+            self.preview_frame, bg="#ffffff", relief="solid", bd=1, highlightbackground="#e1e8ed", highlightthickness=1
+        )
+        img_frame.pack(fill="x", padx=20, pady=4)
 
         # Try to load thumbnail
         try:
@@ -286,22 +295,22 @@ class PreviewPanel:
             self.image_references.append(photo)
 
             # Thumbnail
-            thumb_label = Label(img_frame, image=photo, bg="#fafafa", cursor="hand2")
-            thumb_label.pack(side="left", padx=5, pady=5)
+            thumb_label = Label(img_frame, image=photo, bg="#ffffff", cursor="hand2")
+            thumb_label.pack(side="left", padx=8, pady=8)
 
             # Make thumbnail clickable
             thumb_label.bind("<Button-1>", lambda e, p=image_path: self._open_image(p))
 
             # Image info
-            info_frame = Frame(img_frame, bg="#fafafa")
-            info_frame.pack(side="left", fill="both", expand=True, padx=5, pady=5)
+            info_frame = Frame(img_frame, bg="#ffffff")
+            info_frame.pack(side="left", fill="both", expand=True, padx=8, pady=8)
 
             name_label = Label(
                 info_frame,
                 text=image_name,
-                font=("Segoe UI", 9, "bold"),
-                bg="#fafafa",
-                fg="#0066cc",
+                font=("Segoe UI", 10, "bold"),
+                bg="#ffffff",
+                fg="#2c3e50",
                 anchor="w",
                 cursor="hand2",
             )
@@ -310,50 +319,52 @@ class PreviewPanel:
             # Make name clickable
             name_label.bind("<Button-1>", lambda e, p=image_path: self._open_image(p))
             name_label.bind(
-                "<Enter>", lambda e, lbl=name_label: lbl.config(fg="#004499", font=("Segoe UI", 9, "bold underline"))
+                "<Enter>", lambda e, lbl=name_label: lbl.config(fg="#3498db", font=("Segoe UI", 10, "bold underline"))
             )
-            name_label.bind("<Leave>", lambda e, lbl=name_label: lbl.config(fg="#0066cc", font=("Segoe UI", 9, "bold")))
+            name_label.bind(
+                "<Leave>", lambda e, lbl=name_label: lbl.config(fg="#2c3e50", font=("Segoe UI", 10, "bold"))
+            )
 
             size_label = Label(
                 info_frame,
-                text=f"{orig_width} × {orig_height} px",
-                font=("Segoe UI", 8),
-                bg="#fafafa",
-                fg="#666666",
+                text=f"📐 {orig_width} × {orig_height} px",
+                font=("Segoe UI", 9),
+                bg="#ffffff",
+                fg="#7f8c8d",
                 anchor="w",
             )
-            size_label.pack(fill="x")
+            size_label.pack(fill="x", pady=(2, 0))
 
             # File size
             file_size = os.path.getsize(image_path)
             if file_size < 1024:
-                size_str = f"{file_size} B"
+                size_str = f"💾 {file_size} B"
             elif file_size < 1024 * 1024:
-                size_str = f"{file_size / 1024:.1f} KB"
+                size_str = f"💾 {file_size / 1024:.1f} KB"
             else:
-                size_str = f"{file_size / (1024 * 1024):.1f} MB"
+                size_str = f"💾 {file_size / (1024 * 1024):.1f} MB"
 
             filesize_label = Label(
-                info_frame, text=size_str, font=("Segoe UI", 8), bg="#fafafa", fg="#666666", anchor="w"
+                info_frame, text=size_str, font=("Segoe UI", 9), bg="#ffffff", fg="#7f8c8d", anchor="w"
             )
-            filesize_label.pack(fill="x")
+            filesize_label.pack(fill="x", pady=(2, 0))
 
-            # Add Ignore button
+            # Add Ignore button with modern styling
             ignore_btn = Button(
                 img_frame,
-                text="Ignore",
+                text="🚫 Ignore",
                 command=lambda: self._ignore_image(image_path, image_name),
-                font=("Segoe UI", 8),
-                bg="#ff6b6b",
+                font=("Segoe UI", 9, "bold"),
+                bg="#e74c3c",
                 fg="white",
-                activebackground="#ee5a52",
+                activebackground="#c0392b",
                 activeforeground="white",
                 cursor="hand2",
                 relief="flat",
-                padx=10,
-                pady=3,
+                padx=12,
+                pady=6,
             )
-            ignore_btn.pack(side="right", padx=5)
+            ignore_btn.pack(side="right", padx=8, pady=8)
 
         except Exception:
             # If thumbnail fails, show text only
