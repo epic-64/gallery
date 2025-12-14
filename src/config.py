@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 DEFAULT_CONFIG = {
     "number_mode": "prefix",  # "prefix" or "suffix"
     "separator": " #",
-    "zero_fill": 3,  # Number of digits (0-4)
+    "zero_fill": 3,  # Number of digits (1-4)
 }
 
 CONFIG_FILENAME = "woop_config.json"

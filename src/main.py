@@ -356,7 +356,7 @@ class ImageProcessorApp:
             return
 
         # Generate single example with prominent styling
-        example_number = "1".zfill(zero_fill) if zero_fill > 0 else "1"
+        example_number = "1".zfill(zero_fill)
         if number_mode == "prefix":
             example_name = f"{example_number}{separator}{base_name}"
         else:  # suffix
@@ -490,32 +490,64 @@ class ImageProcessorApp:
         # Zero-fill section
         zerofill_label = Label(
             content,
-            text="🔢 Number of Digits",
+            text="🔢 Number of Digits (1-4)",
             font=("Segoe UI", 11, "bold"),
             bg="#ffffff",
             fg="#2c3e50",
         )
         zerofill_label.pack(anchor="w", pady=(20, 10))
 
-        zerofill_frame = Frame(content, bg="#ffffff")
-        zerofill_frame.pack(anchor="w", fill="x")
+        zerofill_input_frame = Frame(content, bg="#ffffff")
+        zerofill_input_frame.pack(anchor="w", fill="x")
 
-        # Radio buttons for zero-fill options
-        for digits in range(5):
-            example = str(1).zfill(digits) if digits > 0 else "1"
-            text = f"{digits} ({'No padding' if digits == 0 else example})"
+        # Number input field
+        zerofill_entry = Entry(
+            zerofill_input_frame,
+            textvariable=self.zero_fill,
+            font=("Segoe UI", 11),
+            relief="solid",
+            bd=1,
+            bg="#f8f9fa",
+            fg="#2c3e50",
+            insertbackground="#2c3e50",
+            width=5,
+        )
+        zerofill_entry.pack(side="left", ipady=8)
 
-            Radiobutton(
-                zerofill_frame,
-                text=text,
-                variable=self.zero_fill,
-                value=str(digits),
-                font=("Segoe UI", 10),
-                bg="#ffffff",
-                fg="#2c3e50",
-                selectcolor="#ffffff",
-                activebackground="#ffffff",
-            ).pack(anchor="w", pady=2)
+        # Preview label
+        zerofill_preview = Label(
+            zerofill_input_frame,
+            text="",
+            font=("Segoe UI", 10, "bold"),
+            bg="#ffffff",
+            fg="#7f8c8d",
+        )
+        zerofill_preview.pack(side="left", padx=(10, 0))
+
+        # Update preview function
+        def update_zerofill_preview(*args):
+            try:
+                digits = int(self.zero_fill.get())
+                if 1 <= digits <= 4:
+                    example = "1".zfill(digits)
+                    zerofill_preview.config(text=f"→ {example}", fg="#27ae60")
+                else:
+                    zerofill_preview.config(text="(1-4 only)", fg="#e74c3c")
+            except ValueError:
+                zerofill_preview.config(text="(1-4 only)", fg="#e74c3c")
+
+        # Bind to update preview
+        self.zero_fill.trace_add("write", update_zerofill_preview)
+        update_zerofill_preview()  # Initial update
+
+        zerofill_hint = Label(
+            content,
+            text="Examples: 1 → 1, 2 → 01, 3 → 001, 4 → 0001",
+            font=("Segoe UI", 9),
+            bg="#ffffff",
+            fg="#7f8c8d",
+        )
+        zerofill_hint.pack(anchor="w", pady=(4, 0))
 
         # Buttons
         button_frame = Frame(dialog, bg="#ffffff")
