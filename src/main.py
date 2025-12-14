@@ -397,7 +397,7 @@ class ImageProcessorApp:
 
     def _open_naming_config(self):
         """Open a dialog to configure naming options."""
-        from tkinter import Toplevel, Radiobutton, Entry, Label, Button, Frame
+        from tkinter import Button, Entry, Frame, Label, Radiobutton, Toplevel
 
         # Create dialog window
         dialog = Toplevel(self.root)
