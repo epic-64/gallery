@@ -48,92 +48,116 @@ class ReviewWindow:
 
     def _create_widgets(self):
         """Create the UI widgets for review mode."""
-        # Top info bar
-        info_frame = Frame(self.window, bg="#2c3e50", height=60)
-        info_frame.pack(fill="x")
-        info_frame.pack_propagate(False)
+        # Main container with two columns
+        main_container = Frame(self.window, bg="#f5f7fa")
+        main_container.pack(fill="both", expand=True, padx=20, pady=20)
 
-        self.info_label = Label(
-            info_frame,
-            text="",
-            font=("Segoe UI", 12, "bold"),
-            bg="#2c3e50",
-            fg="#ffffff",
-        )
-        self.info_label.pack(pady=15)
-
-        # Image display area
-        image_container = Frame(self.window, bg="#ffffff", relief="flat", bd=0)
-        image_container.pack(fill="both", expand=True, padx=25, pady=25)
+        # Left side - Image display area
+        image_container = Frame(main_container, bg="#ffffff", relief="flat", bd=0)
+        image_container.pack(side="left", fill="both", expand=True, padx=(0, 15))
 
         # Image label
         self.image_label = Label(image_container, bg="#ffffff", text="Loading...", font=("Segoe UI", 14))
         self.image_label.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # Filename label below image
-        self.filename_label = Label(
-            image_container,
+        # Right side - Controls panel (fixed width)
+        controls_container = Frame(main_container, bg="#ffffff", relief="flat", bd=0, width=280)
+        controls_container.pack(side="right", fill="y")
+        controls_container.pack_propagate(False)
+
+        # Info section at the top
+        info_section = Frame(controls_container, bg="#ffffff")
+        info_section.pack(fill="x", padx=20, pady=(20, 0))
+
+        self.info_label = Label(
+            info_section,
             text="",
-            font=("Segoe UI", 11, "bold"),
+            font=("Segoe UI", 13, "bold"),
             bg="#ffffff",
             fg="#2c3e50",
+            anchor="w",
         )
-        self.filename_label.pack(pady=(0, 10))
+        self.info_label.pack(fill="x")
 
-        # Button frame at the bottom
-        button_frame = Frame(self.window, bg="#f5f7fa")
-        button_frame.pack(pady=(0, 25))
-
-        # Reject button
-        reject_btn = Button(
-            button_frame,
-            text="❌ REJECT",
-            command=self._reject_image,
-            font=("Segoe UI", 14, "bold"),
-            bg="#e74c3c",
-            fg="white",
-            activebackground="#c0392b",
-            activeforeground="white",
-            cursor="hand2",
-            width=15,
-            height=2,
-            relief="flat",
+        # Filename label
+        self.filename_label = Label(
+            info_section,
+            text="",
+            font=("Segoe UI", 10),
+            bg="#ffffff",
+            fg="#7f8c8d",
+            anchor="w",
+            wraplength=240,
+            justify="left",
         )
-        reject_btn.pack(side="left", padx=15)
+        self.filename_label.pack(fill="x", pady=(10, 0))
 
-        # Fix button
-        fix_btn = Button(
-            button_frame,
-            text="🔧 FIX",
-            command=self._fix_image,
-            font=("Segoe UI", 14, "bold"),
-            bg="#f39c12",
-            fg="white",
-            activebackground="#e67e22",
-            activeforeground="white",
-            cursor="hand2",
-            width=15,
-            height=2,
-            relief="flat",
-        )
-        fix_btn.pack(side="left", padx=15)
+        # Spacer
+        spacer = Frame(controls_container, bg="#ffffff", height=30)
+        spacer.pack()
+
+        # Buttons section
+        buttons_section = Frame(controls_container, bg="#ffffff")
+        buttons_section.pack(fill="x", padx=20, pady=10)
 
         # Approve button
         approve_btn = Button(
-            button_frame,
+            buttons_section,
             text="✅ APPROVE",
             command=self._approve_image,
-            font=("Segoe UI", 14, "bold"),
+            font=("Segoe UI", 12, "bold"),
             bg="#27ae60",
             fg="white",
             activebackground="#229954",
             activeforeground="white",
             cursor="hand2",
-            width=15,
-            height=2,
             relief="flat",
+            pady=15,
         )
-        approve_btn.pack(side="left", padx=15)
+        approve_btn.pack(fill="x", pady=(0, 10))
+
+        # Fix button
+        fix_btn = Button(
+            buttons_section,
+            text="🔧 FIX",
+            command=self._fix_image,
+            font=("Segoe UI", 12, "bold"),
+            bg="#f39c12",
+            fg="white",
+            activebackground="#e67e22",
+            activeforeground="white",
+            cursor="hand2",
+            relief="flat",
+            pady=15,
+        )
+        fix_btn.pack(fill="x", pady=(0, 10))
+
+        # Reject button
+        reject_btn = Button(
+            buttons_section,
+            text="❌ REJECT",
+            command=self._reject_image,
+            font=("Segoe UI", 12, "bold"),
+            bg="#e74c3c",
+            fg="white",
+            activebackground="#c0392b",
+            activeforeground="white",
+            cursor="hand2",
+            relief="flat",
+            pady=15,
+        )
+        reject_btn.pack(fill="x")
+
+        # Keyboard shortcuts hint at the bottom
+        hint_label = Label(
+            controls_container,
+            text="Keyboard shortcuts:\n→ Approve  |  ↓ Fix  |  ← Reject\nEsc to close",
+            font=("Segoe UI", 8),
+            bg="#ffffff",
+            fg="#95a5a6",
+            justify="center",
+        )
+        hint_label.pack(side="bottom", pady=(20, 20))
 
         # Bind keyboard shortcuts
         self.window.bind("<Left>", lambda e: self._reject_image())
