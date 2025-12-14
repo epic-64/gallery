@@ -60,39 +60,93 @@ class PreviewPanel:
         preview_container = Frame(self.parent, bg="#ecf0f1", relief="flat", bd=0)
         preview_container.pack(fill="both", expand=True, padx=25, pady=(0, 25))
 
-        # Create canvas with scrollbar
-        canvas = Canvas(preview_container, bg="#fafbfc", highlightthickness=0)
-        scrollbar = Scrollbar(preview_container, orient="vertical", command=canvas.yview)
-        self.preview_frame = Frame(canvas, bg="#fafbfc")
+        # Create main container with two-column layout
+        main_content = Frame(preview_container, bg="#fafbfc")
+        main_content.pack(fill="both", expand=True)
 
-        self.preview_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+        # Left column - Directories (with scrollbar)
+        left_container = Frame(main_content, bg="#ecf0f1", relief="flat", bd=0)
+        left_container.pack(side="left", fill="both", expand=True, padx=(0, 5))
 
-        canvas.create_window((0, 0), window=self.preview_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
+        left_canvas = Canvas(left_container, bg="#fafbfc", highlightthickness=0)
+        left_scrollbar = Scrollbar(left_container, orient="vertical", command=left_canvas.yview)
+        self.dirs_frame = Frame(left_canvas, bg="#fafbfc")
 
-        scrollbar.pack(side="right", fill="y")
-        canvas.pack(side="left", fill="both", expand=True)
+        self.dirs_frame.bind("<Configure>", lambda e: left_canvas.configure(scrollregion=left_canvas.bbox("all")))
 
-        # Bind mousewheel to canvas
-        def on_mousewheel(event):
-            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+        left_canvas.create_window((0, 0), window=self.dirs_frame, anchor="nw")
+        left_canvas.configure(yscrollcommand=left_scrollbar.set)
 
-        canvas.bind_all("<MouseWheel>", on_mousewheel)
+        left_scrollbar.pack(side="right", fill="y")
+        left_canvas.pack(side="left", fill="both", expand=True)
 
-        # Initial message
+        # Bind mousewheel to left canvas
+        def on_left_mousewheel(event):
+            left_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        self.dirs_frame.bind("<Enter>", lambda e: left_canvas.bind_all("<MouseWheel>", on_left_mousewheel))
+        self.dirs_frame.bind("<Leave>", lambda e: left_canvas.unbind_all("<MouseWheel>"))
+
+        # Right column - Images (with scrollbar)
+        right_container = Frame(main_content, bg="#ecf0f1", relief="flat", bd=0)
+        right_container.pack(side="right", fill="both", expand=True, padx=(5, 0))
+
+        right_canvas = Canvas(right_container, bg="#fafbfc", highlightthickness=0)
+        right_scrollbar = Scrollbar(right_container, orient="vertical", command=right_canvas.yview)
+        self.images_frame = Frame(right_canvas, bg="#fafbfc")
+
+        self.images_frame.bind("<Configure>", lambda e: right_canvas.configure(scrollregion=right_canvas.bbox("all")))
+
+        right_canvas.create_window((0, 0), window=self.images_frame, anchor="nw")
+        right_canvas.configure(yscrollcommand=right_scrollbar.set)
+
+        right_scrollbar.pack(side="right", fill="y")
+        right_canvas.pack(side="left", fill="both", expand=True)
+
+        # Bind mousewheel to right canvas
+        def on_right_mousewheel(event):
+            right_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        self.images_frame.bind("<Enter>", lambda e: right_canvas.bind_all("<MouseWheel>", on_right_mousewheel))
+        self.images_frame.bind("<Leave>", lambda e: right_canvas.unbind_all("<MouseWheel>"))
+
+        # Store canvas references for later use
+        self.left_canvas = left_canvas
+        self.right_canvas = right_canvas
+
+        # Initial message (shown in the main preview_frame for now)
+        self.preview_frame = main_content  # Keep reference for empty message
         self._show_empty_message()
 
     def _show_empty_message(self):
         """Display the default empty state message."""
-        empty_message = Label(
-            self.preview_frame,
-            text="📂 No folder selected\n\nUse the 'Browse' button to select a folder",
+        # Clear both frames
+        for widget in self.dirs_frame.winfo_children():
+            widget.destroy()
+        for widget in self.images_frame.winfo_children():
+            widget.destroy()
+
+        # Show message in left frame
+        empty_message_left = Label(
+            self.dirs_frame,
+            text="📁 Directories\n\nNo folder selected",
             font=("Segoe UI", 11),
             bg="#fafbfc",
             fg="#95a5a6",
             justify="center",
         )
-        empty_message.pack(pady=80)
+        empty_message_left.pack(pady=80)
+
+        # Show message in right frame
+        empty_message_right = Label(
+            self.images_frame,
+            text="🖼️ Images\n\nNo folder selected",
+            font=("Segoe UI", 11),
+            bg="#fafbfc",
+            fg="#95a5a6",
+            justify="center",
+        )
+        empty_message_right.pack(pady=80)
 
     def _refresh_preview(self):
         """Refresh the current folder preview."""
@@ -111,16 +165,22 @@ class PreviewPanel:
         # Enable refresh button now that we have a folder
         self.refresh_btn.config(state="normal")
 
-        # Clear previous content
-        for widget in self.preview_frame.winfo_children():
+        # Clear previous content from both frames
+        for widget in self.dirs_frame.winfo_children():
+            widget.destroy()
+        for widget in self.images_frame.winfo_children():
             widget.destroy()
         self.image_references.clear()
 
         if not os.path.exists(folder_path):
-            error_label = Label(
-                self.preview_frame, text="❌ Folder not found", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
+            error_label_left = Label(
+                self.dirs_frame, text="❌ Folder not found", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
             )
-            error_label.pack(pady=50)
+            error_label_left.pack(pady=50)
+            error_label_right = Label(
+                self.images_frame, text="❌ Folder not found", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
+            )
+            error_label_right.pack(pady=50)
             return
 
         # Get all files and directories
@@ -128,17 +188,25 @@ class PreviewPanel:
             items = os.listdir(folder_path)
             items.sort()
         except PermissionError:
-            error_label = Label(
-                self.preview_frame, text="🔒 Permission denied", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
+            error_label_left = Label(
+                self.dirs_frame, text="🔒 Permission denied", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
             )
-            error_label.pack(pady=50)
+            error_label_left.pack(pady=50)
+            error_label_right = Label(
+                self.images_frame, text="🔒 Permission denied", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
+            )
+            error_label_right.pack(pady=50)
             return
 
         if not items:
-            empty_label = Label(
-                self.preview_frame, text="📭 Empty folder", font=("Segoe UI", 11), bg="#fafbfc", fg="#95a5a6"
+            empty_label_left = Label(
+                self.dirs_frame, text="📭 Empty folder", font=("Segoe UI", 11), bg="#fafbfc", fg="#95a5a6"
             )
-            empty_label.pack(pady=50)
+            empty_label_left.pack(pady=50)
+            empty_label_right = Label(
+                self.images_frame, text="📭 Empty folder", font=("Segoe UI", 11), bg="#fafbfc", fg="#95a5a6"
+            )
+            empty_label_right.pack(pady=50)
             return
 
         # Supported image extensions
@@ -157,23 +225,31 @@ class PreviewPanel:
                 if ext in image_extensions:
                     images.append(item)
 
-        # Display directories
+        # Display directories in left frame
         if directories:
             self._display_directories(folder_path, directories)
-
-        # Display images with thumbnails
-        if images:
-            self._display_images(folder_path, images)
-
-        if not directories and not images:
-            no_content_label = Label(
-                self.preview_frame,
-                text="📂 No directories or images found",
+        else:
+            no_dirs_label = Label(
+                self.dirs_frame,
+                text="📂 No directories found",
                 font=("Segoe UI", 11),
                 bg="#fafbfc",
                 fg="#95a5a6",
             )
-            no_content_label.pack(pady=50)
+            no_dirs_label.pack(pady=50)
+
+        # Display images in right frame
+        if images:
+            self._display_images(folder_path, images)
+        else:
+            no_images_label = Label(
+                self.images_frame,
+                text="🖼️ No images found",
+                font=("Segoe UI", 11),
+                bg="#fafbfc",
+                fg="#95a5a6",
+            )
+            no_images_label.pack(pady=50)
 
     def _display_directories(self, folder_path, directories):
         """Display directory list in the preview.
@@ -183,7 +259,7 @@ class PreviewPanel:
             directories: List of directory names.
         """
         dir_header = Label(
-            self.preview_frame,
+            self.dirs_frame,
             text=f"📁 Directories ({len(directories)})",
             font=("Segoe UI", 11, "bold"),
             bg="#fafbfc",
@@ -192,9 +268,10 @@ class PreviewPanel:
         )
         dir_header.pack(fill="x", padx=15, pady=(15, 8))
 
-        for directory in directories[:10]:  # Limit to first 10
+        # Display all directories (no limit, since they have their own scrollbar)
+        for directory in directories:
             dir_frame = Frame(
-                self.preview_frame,
+                self.dirs_frame,
                 bg="#ffffff",
                 relief="solid",
                 bd=1,
@@ -222,17 +299,6 @@ class PreviewPanel:
             )
             dir_label.bind("<Leave>", lambda e, lbl=dir_label: lbl.config(fg="#3498db", font=("Segoe UI", 10)))
 
-        if len(directories) > 10:
-            more_label = Label(
-                self.preview_frame,
-                text=f"  ... and {len(directories) - 10} more",
-                font=("Segoe UI", 8),
-                bg="#ffffff",
-                fg="#888888",
-                anchor="w",
-            )
-            more_label.pack(fill="x", padx=15, pady=2)
-
     def _display_images(self, folder_path, images):
         """Display image list with thumbnails in the preview.
 
@@ -241,7 +307,7 @@ class PreviewPanel:
             images: List of image filenames.
         """
         img_header = Label(
-            self.preview_frame,
+            self.images_frame,
             text=f"🖼️ Images ({len(images)})",
             font=("Segoe UI", 11, "bold"),
             bg="#fafbfc",
@@ -256,7 +322,7 @@ class PreviewPanel:
 
         if len(images) > 20:
             more_label = Label(
-                self.preview_frame,
+                self.images_frame,
                 text=f"... and {len(images) - 20} more images",
                 font=("Segoe UI", 8),
                 bg="#ffffff",
@@ -276,7 +342,7 @@ class PreviewPanel:
 
         # Create frame for this image with modern card styling
         img_frame = Frame(
-            self.preview_frame, bg="#ffffff", relief="solid", bd=1, highlightbackground="#e1e8ed", highlightthickness=1
+            self.images_frame, bg="#ffffff", relief="solid", bd=1, highlightbackground="#e1e8ed", highlightthickness=1
         )
         img_frame.pack(fill="x", padx=20, pady=4)
 
