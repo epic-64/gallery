@@ -48,6 +48,7 @@ class ImageProcessorApp:
         self.mode = StringVar(value="process")
         self.number_mode = StringVar(value=self.config.get("number_mode", "prefix"))
         self.separator = StringVar(value=self.config.get("separator", " #"))
+        self.zero_fill = StringVar(value=str(self.config.get("zero_fill", 3)))
         self.preview_panel = None  # Will be initialized in create_widgets
 
         self.create_widgets()
@@ -332,6 +333,7 @@ class ImageProcessorApp:
         """Save current configuration to file."""
         self.config["number_mode"] = self.number_mode.get()
         self.config["separator"] = self.separator.get()
+        self.config["zero_fill"] = int(self.zero_fill.get())
         save_config(self.config)
 
     def _update_filename_preview(self):
@@ -339,10 +341,11 @@ class ImageProcessorApp:
         base_name = self.base_name.get().strip()
         separator = self.separator.get()
         number_mode = self.number_mode.get()
+        zero_fill = int(self.zero_fill.get())
 
         # Update summary
         mode_text = "Prefix" if number_mode == "prefix" else "Suffix"
-        summary = f"Position: {mode_text}, separator: '{separator}'"
+        summary = f"Position: {mode_text}, separator: '{separator}', digits: {zero_fill}"
         self.config_summary_label.config(text=summary)
 
         # Clear existing preview
@@ -353,10 +356,11 @@ class ImageProcessorApp:
             return
 
         # Generate single example with prominent styling
+        example_number = "1".zfill(zero_fill) if zero_fill > 0 else "1"
         if number_mode == "prefix":
-            example_name = f"001{separator}{base_name}"
+            example_name = f"{example_number}{separator}{base_name}"
         else:  # suffix
-            example_name = f"{base_name}{separator}001"
+            example_name = f"{base_name}{separator}{example_number}"
 
         # Create a frame to hold the styled example
         example_container = Frame(self.preview_example_label, bg="#ffffff")
@@ -398,15 +402,15 @@ class ImageProcessorApp:
         # Create dialog window
         dialog = Toplevel(self.root)
         dialog.title("Naming Configuration")
-        dialog.geometry("450x320")
+        dialog.geometry("450x500")
         dialog.configure(bg="#ffffff")
         dialog.resizable(False, False)
 
         # Center the dialog
         dialog.update_idletasks()
         x = (dialog.winfo_screenwidth() // 2) - (450 // 2)
-        y = (dialog.winfo_screenheight() // 2) - (320 // 2)
-        dialog.geometry(f"450x320+{x}+{y}")
+        y = (dialog.winfo_screenheight() // 2) - (500 // 2)
+        dialog.geometry(f"450x500+{x}+{y}")
 
         # Make it modal
         dialog.transient(self.root)
@@ -482,6 +486,36 @@ class ImageProcessorApp:
             fg="#7f8c8d",
         )
         separator_hint.pack(anchor="w", pady=(4, 0))
+
+        # Zero-fill section
+        zerofill_label = Label(
+            content,
+            text="🔢 Number of Digits",
+            font=("Segoe UI", 11, "bold"),
+            bg="#ffffff",
+            fg="#2c3e50",
+        )
+        zerofill_label.pack(anchor="w", pady=(20, 10))
+
+        zerofill_frame = Frame(content, bg="#ffffff")
+        zerofill_frame.pack(anchor="w", fill="x")
+
+        # Radio buttons for zero-fill options
+        for digits in range(5):
+            example = str(1).zfill(digits) if digits > 0 else "1"
+            text = f"{digits} ({'No padding' if digits == 0 else example})"
+
+            Radiobutton(
+                zerofill_frame,
+                text=text,
+                variable=self.zero_fill,
+                value=str(digits),
+                font=("Segoe UI", 10),
+                bg="#ffffff",
+                fg="#2c3e50",
+                selectcolor="#ffffff",
+                activebackground="#ffffff",
+            ).pack(anchor="w", pady=2)
 
         # Buttons
         button_frame = Frame(dialog, bg="#ffffff")
@@ -575,11 +609,13 @@ class ImageProcessorApp:
 
         number_mode = self.number_mode.get()
         separator = self.separator.get()
+        zero_fill = int(self.zero_fill.get())
 
         logger.info(
-            f"Starting image processing with base name: {base_name}, mode: {number_mode}, separator: '{separator}'"
+            f"Starting image processing with base name: {base_name}, mode: {number_mode}, "
+            f"separator: '{separator}', zero_fill: {zero_fill}"
         )
-        processed_count, errors = process_images(folder, base_name, number_mode, separator)
+        processed_count, errors = process_images(folder, base_name, number_mode, separator, zero_fill)
 
         if errors:
             error_summary = "\n".join(errors[:5])
