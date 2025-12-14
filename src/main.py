@@ -395,6 +395,124 @@ class ImageProcessorApp:
             fg="#7f8c8d",
         ).pack(side="left")
 
+    def _increment_zerofill(self):
+        """Increment zero fill value if less than 4."""
+        try:
+            current = int(self.zero_fill.get())
+            if current < 4:
+                self.zero_fill.set(str(current + 1))
+        except ValueError:
+            self.zero_fill.set("3")
+
+    def _decrement_zerofill(self):
+        """Decrement zero fill value if greater than 1."""
+        try:
+            current = int(self.zero_fill.get())
+            if current > 1:
+                self.zero_fill.set(str(current - 1))
+        except ValueError:
+            self.zero_fill.set("3")
+
+    def _create_zerofill_widgets(self, content):
+        """Create zerofill input widgets with +/- buttons and preview.
+
+        Args:
+            content: Parent frame for the widgets
+        """
+        from tkinter import Button, Entry, Frame, Label
+
+        # Zero-fill section
+        zerofill_label = Label(
+            content,
+            text="🔢 Number of Digits (1-4)",
+            font=("Segoe UI", 11, "bold"),
+            bg="#ffffff",
+            fg="#2c3e50",
+        )
+        zerofill_label.pack(anchor="w", pady=(20, 10))
+
+        zerofill_input_frame = Frame(content, bg="#ffffff")
+        zerofill_input_frame.pack(anchor="w", fill="x")
+
+        # Decrement button
+        zerofill_minus_btn = Button(
+            zerofill_input_frame,
+            text="−",
+            font=("Segoe UI", 12, "bold"),
+            bg="#e8eaed",
+            fg="#2c3e50",
+            relief="solid",
+            bd=1,
+            cursor="hand2",
+            width=2,
+            command=self._decrement_zerofill,
+        )
+        zerofill_minus_btn.pack(side="left", padx=(0, 5))
+
+        # Number input field
+        zerofill_entry = Entry(
+            zerofill_input_frame,
+            textvariable=self.zero_fill,
+            font=("Segoe UI", 11),
+            relief="solid",
+            bd=1,
+            bg="#f8f9fa",
+            fg="#2c3e50",
+            insertbackground="#2c3e50",
+            width=5,
+        )
+        zerofill_entry.pack(side="left", ipady=8)
+
+        # Increment button
+        zerofill_plus_btn = Button(
+            zerofill_input_frame,
+            text="+",
+            font=("Segoe UI", 12, "bold"),
+            bg="#e8eaed",
+            fg="#2c3e50",
+            relief="solid",
+            bd=1,
+            cursor="hand2",
+            width=2,
+            command=self._increment_zerofill,
+        )
+        zerofill_plus_btn.pack(side="left", padx=(5, 0))
+
+        # Preview label
+        zerofill_preview = Label(
+            zerofill_input_frame,
+            text="",
+            font=("Segoe UI", 10, "bold"),
+            bg="#ffffff",
+            fg="#7f8c8d",
+        )
+        zerofill_preview.pack(side="left", padx=(10, 0))
+
+        # Update preview function
+        def update_zerofill_preview(*args):
+            try:
+                digits = int(self.zero_fill.get())
+                if 1 <= digits <= 4:
+                    example = "1".zfill(digits)
+                    zerofill_preview.config(text=f"→ {example}", fg="#27ae60")
+                else:
+                    zerofill_preview.config(text="(1-4 only)", fg="#e74c3c")
+            except ValueError:
+                zerofill_preview.config(text="(1-4 only)", fg="#e74c3c")
+
+        # Bind to update preview
+        self.zero_fill.trace_add("write", update_zerofill_preview)
+        update_zerofill_preview()  # Initial update
+
+        zerofill_hint = Label(
+            content,
+            text="Examples: 1 → 1, 2 → 01, 3 → 001, 4 → 0001",
+            font=("Segoe UI", 9),
+            bg="#ffffff",
+            fg="#7f8c8d",
+        )
+        zerofill_hint.pack(anchor="w", pady=(4, 0))
+
     def _open_naming_config(self):
         """Open a dialog to configure naming options."""
         from tkinter import Button, Entry, Frame, Label, Radiobutton, Toplevel
@@ -488,66 +606,7 @@ class ImageProcessorApp:
         separator_hint.pack(anchor="w", pady=(4, 0))
 
         # Zero-fill section
-        zerofill_label = Label(
-            content,
-            text="🔢 Number of Digits (1-4)",
-            font=("Segoe UI", 11, "bold"),
-            bg="#ffffff",
-            fg="#2c3e50",
-        )
-        zerofill_label.pack(anchor="w", pady=(20, 10))
-
-        zerofill_input_frame = Frame(content, bg="#ffffff")
-        zerofill_input_frame.pack(anchor="w", fill="x")
-
-        # Number input field
-        zerofill_entry = Entry(
-            zerofill_input_frame,
-            textvariable=self.zero_fill,
-            font=("Segoe UI", 11),
-            relief="solid",
-            bd=1,
-            bg="#f8f9fa",
-            fg="#2c3e50",
-            insertbackground="#2c3e50",
-            width=5,
-        )
-        zerofill_entry.pack(side="left", ipady=8)
-
-        # Preview label
-        zerofill_preview = Label(
-            zerofill_input_frame,
-            text="",
-            font=("Segoe UI", 10, "bold"),
-            bg="#ffffff",
-            fg="#7f8c8d",
-        )
-        zerofill_preview.pack(side="left", padx=(10, 0))
-
-        # Update preview function
-        def update_zerofill_preview(*args):
-            try:
-                digits = int(self.zero_fill.get())
-                if 1 <= digits <= 4:
-                    example = "1".zfill(digits)
-                    zerofill_preview.config(text=f"→ {example}", fg="#27ae60")
-                else:
-                    zerofill_preview.config(text="(1-4 only)", fg="#e74c3c")
-            except ValueError:
-                zerofill_preview.config(text="(1-4 only)", fg="#e74c3c")
-
-        # Bind to update preview
-        self.zero_fill.trace_add("write", update_zerofill_preview)
-        update_zerofill_preview()  # Initial update
-
-        zerofill_hint = Label(
-            content,
-            text="Examples: 1 → 1, 2 → 01, 3 → 001, 4 → 0001",
-            font=("Segoe UI", 9),
-            bg="#ffffff",
-            fg="#7f8c8d",
-        )
-        zerofill_hint.pack(anchor="w", pady=(4, 0))
+        self._create_zerofill_widgets(content)
 
         # Buttons
         button_frame = Frame(dialog, bg="#ffffff")
