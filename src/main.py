@@ -218,86 +218,61 @@ class ImageProcessorApp:
         )
         name_hint.pack(anchor="w", pady=(8, 0))
 
-        # Number mode section
-        self.number_mode_frame = Frame(content_frame, bg="#ffffff")
-        self.number_mode_frame.pack(fill="x", pady=(0, 20))
+        # Naming configuration section (compact)
+        self.naming_config_frame = Frame(content_frame, bg="#ffffff")
+        self.naming_config_frame.pack(fill="x", pady=(0, 20))
 
-        mode_label = Label(
-            self.number_mode_frame,
-            text="🔢 Number Position",
+        config_header = Frame(self.naming_config_frame, bg="#ffffff")
+        config_header.pack(fill="x")
+
+        config_label = Label(
+            config_header,
+            text="⚙️ Naming Configuration",
             font=("Segoe UI", 11, "bold"),
             bg="#ffffff",
             fg="#2c3e50",
         )
-        mode_label.pack(anchor="w", pady=(0, 8))
+        config_label.pack(side="left", anchor="w")
 
-        mode_options_frame = Frame(self.number_mode_frame, bg="#ffffff")
-        mode_options_frame.pack(anchor="w", fill="x")
+        configure_btn = Button(
+            config_header,
+            text="Configure",
+            command=self._open_naming_config,
+            font=("Segoe UI", 9),
+            bg="#3498db",
+            fg="white",
+            activebackground="#2980b9",
+            activeforeground="white",
+            cursor="hand2",
+            relief="flat",
+            padx=12,
+            pady=4,
+        )
+        configure_btn.pack(side="right", anchor="e")
 
-        prefix_radio = Radiobutton(
-            mode_options_frame,
-            text="Prefix (001 - basename)",
-            variable=self.number_mode,
-            value="prefix",
+        # Summary display
+        self.config_summary_label = Label(
+            self.naming_config_frame,
+            text="",
             font=("Segoe UI", 10),
             bg="#ffffff",
-            fg="#2c3e50",
-            selectcolor="#ffffff",
-            activebackground="#ffffff",
-            command=self._update_filename_preview,
+            fg="#7f8c8d",
+            anchor="w",
         )
-        prefix_radio.pack(anchor="w", pady=2)
-
-        suffix_radio = Radiobutton(
-            mode_options_frame,
-            text="Suffix (basename - 001)",
-            variable=self.number_mode,
-            value="suffix",
-            font=("Segoe UI", 10),
-            bg="#ffffff",
-            fg="#2c3e50",
-            selectcolor="#ffffff",
-            activebackground="#ffffff",
-            command=self._update_filename_preview,
-        )
-        suffix_radio.pack(anchor="w", pady=2)
-
-        # Separator section
-        self.separator_frame = Frame(content_frame, bg="#ffffff")
-        self.separator_frame.pack(fill="x", pady=(0, 20))
-
-        separator_label = Label(
-            self.separator_frame,
-            text="➖ Separator",
-            font=("Segoe UI", 11, "bold"),
-            bg="#ffffff",
-            fg="#2c3e50",
-        )
-        separator_label.pack(anchor="w", pady=(0, 8))
-
-        self.separator_entry = Entry(
-            self.separator_frame,
-            textvariable=self.separator,
-            font=("Segoe UI", 11),
-            relief="solid",
-            bd=1,
-            bg="#f8f9fa",
-            fg="#2c3e50",
-            insertbackground="#2c3e50",
-            width=10,
-        )
-        self.separator_entry.pack(anchor="w", ipady=8)
-        self.separator_entry.bind("<KeyRelease>", lambda e: self._update_filename_preview())
+        self.config_summary_label.pack(fill="x", pady=(8, 0))
 
         # Preview example
         self.preview_example_label = Label(
-            self.separator_frame,
+            self.naming_config_frame,
             text="",
             font=("Segoe UI", 9),
             bg="#ffffff",
             fg="#27ae60",
         )
-        self.preview_example_label.pack(anchor="w", pady=(8, 0))
+        self.preview_example_label.pack(anchor="w", pady=(4, 0))
+
+        # Initialize the summary
+        self._update_filename_preview()
 
         # RUN button frame (always at the bottom of settings panel)
         self.button_frame = Frame(content_frame, bg="#ffffff")
@@ -339,19 +314,22 @@ class ImageProcessorApp:
         """Handle mode change to show/hide base name field."""
         if self.mode.get() == "revert":
             self.name_frame.pack_forget()
-            self.number_mode_frame.pack_forget()
-            self.separator_frame.pack_forget()
+            self.naming_config_frame.pack_forget()
         else:
             self.name_frame.pack(fill="x", pady=(0, 25), before=self.button_frame)
-            self.number_mode_frame.pack(fill="x", pady=(0, 20), before=self.button_frame)
-            self.separator_frame.pack(fill="x", pady=(0, 20), before=self.button_frame)
+            self.naming_config_frame.pack(fill="x", pady=(0, 20), before=self.button_frame)
             self._update_filename_preview()
 
     def _update_filename_preview(self):
-        """Update the filename preview example."""
+        """Update the filename preview example and configuration summary."""
         base_name = self.base_name.get().strip()
         separator = self.separator.get()
         number_mode = self.number_mode.get()
+
+        # Update summary
+        mode_text = "Prefix" if number_mode == "prefix" else "Suffix"
+        summary = f"{mode_text}, separator: '{separator}'"
+        self.config_summary_label.config(text=summary)
 
         if not base_name:
             self.preview_example_label.config(text="")
@@ -364,6 +342,138 @@ class ImageProcessorApp:
             example = f"📝 Example: {base_name}{separator}001.jpg, {base_name}{separator}002.jpg, ..."
 
         self.preview_example_label.config(text=example)
+
+    def _open_naming_config(self):
+        """Open a dialog to configure naming options."""
+        from tkinter import Toplevel, Radiobutton, Entry, Label, Button, Frame
+
+        # Create dialog window
+        dialog = Toplevel(self.root)
+        dialog.title("Naming Configuration")
+        dialog.geometry("400x280")
+        dialog.configure(bg="#ffffff")
+        dialog.resizable(False, False)
+
+        # Center the dialog
+        dialog.update_idletasks()
+        x = (dialog.winfo_screenwidth() // 2) - (400 // 2)
+        y = (dialog.winfo_screenheight() // 2) - (280 // 2)
+        dialog.geometry(f"400x280+{x}+{y}")
+
+        # Make it modal
+        dialog.transient(self.root)
+        dialog.grab_set()
+
+        # Content
+        content = Frame(dialog, bg="#ffffff")
+        content.pack(fill="both", expand=True, padx=30, pady=20)
+
+        # Number position section
+        position_label = Label(
+            content,
+            text="🔢 Number Position",
+            font=("Segoe UI", 11, "bold"),
+            bg="#ffffff",
+            fg="#2c3e50",
+        )
+        position_label.pack(anchor="w", pady=(0, 10))
+
+        prefix_radio = Radiobutton(
+            content,
+            text="Prefix (001 - basename.jpg)",
+            variable=self.number_mode,
+            value="prefix",
+            font=("Segoe UI", 10),
+            bg="#ffffff",
+            fg="#2c3e50",
+            selectcolor="#ffffff",
+            activebackground="#ffffff",
+        )
+        prefix_radio.pack(anchor="w", pady=4)
+
+        suffix_radio = Radiobutton(
+            content,
+            text="Suffix (basename - 001.jpg)",
+            variable=self.number_mode,
+            value="suffix",
+            font=("Segoe UI", 10),
+            bg="#ffffff",
+            fg="#2c3e50",
+            selectcolor="#ffffff",
+            activebackground="#ffffff",
+        )
+        suffix_radio.pack(anchor="w", pady=4)
+
+        # Separator section
+        separator_label = Label(
+            content,
+            text="➖ Separator",
+            font=("Segoe UI", 11, "bold"),
+            bg="#ffffff",
+            fg="#2c3e50",
+        )
+        separator_label.pack(anchor="w", pady=(20, 10))
+
+        separator_entry = Entry(
+            content,
+            textvariable=self.separator,
+            font=("Segoe UI", 11),
+            relief="solid",
+            bd=1,
+            bg="#f8f9fa",
+            fg="#2c3e50",
+            insertbackground="#2c3e50",
+        )
+        separator_entry.pack(fill="x", ipady=8)
+
+        separator_hint = Label(
+            content,
+            text='Examples: " #", " - ", "_", "-"',
+            font=("Segoe UI", 9),
+            bg="#ffffff",
+            fg="#7f8c8d",
+        )
+        separator_hint.pack(anchor="w", pady=(4, 0))
+
+        # Buttons
+        button_frame = Frame(dialog, bg="#ffffff")
+        button_frame.pack(fill="x", padx=30, pady=(0, 20))
+
+        def on_save():
+            self._update_filename_preview()
+            dialog.destroy()
+
+        save_btn = Button(
+            button_frame,
+            text="Save",
+            command=on_save,
+            font=("Segoe UI", 10, "bold"),
+            bg="#27ae60",
+            fg="white",
+            activebackground="#229954",
+            activeforeground="white",
+            cursor="hand2",
+            relief="flat",
+            padx=20,
+            pady=8,
+        )
+        save_btn.pack(side="right")
+
+        cancel_btn = Button(
+            button_frame,
+            text="Cancel",
+            command=dialog.destroy,
+            font=("Segoe UI", 10),
+            bg="#95a5a6",
+            fg="white",
+            activebackground="#7f8c8d",
+            activeforeground="white",
+            cursor="hand2",
+            relief="flat",
+            padx=20,
+            pady=8,
+        )
+        cancel_btn.pack(side="right", padx=(0, 10))
 
     def run_operation(self):
         """Execute the selected operation."""
