@@ -17,21 +17,27 @@ DEFAULT_JPEG_QUALITY = 100
 
 
 def get_image_files(folder: str) -> list[str]:
-    """Returns a list of image files sorted by modification time.
+    """Returns a list of image files sorted by creation date (oldest first).
 
     Args:
         folder: Path to the folder containing images
 
     Returns:
-        List of image filenames sorted by modification time
+        List of image filenames sorted by creation date
     """
     try:
         folder_path = Path(folder)
         image_files = [f for f in os.listdir(folder) if f.lower().endswith(SUPPORTED_EXTENSIONS)]
-        return sorted(
-            image_files,
-            key=lambda f: (folder_path / f).stat().st_mtime,
-        )
+
+        def get_creation_time(filename):
+            try:
+                stat = (folder_path / filename).stat()
+                # Use birth time (creation time) on Windows, or fallback to modification time
+                return getattr(stat, "st_birthtime", stat.st_mtime)
+            except Exception:
+                return 0
+
+        return sorted(image_files, key=get_creation_time)
     except OSError as e:
         logger.error(f"Error reading folder {folder}: {e}")
         return []

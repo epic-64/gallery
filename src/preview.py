@@ -233,6 +233,9 @@ class PreviewPanel:
         # Sort directories with custom logic
         directories = self._sort_directories(directories)
 
+        # Sort images by creation date (oldest first)
+        images = self._sort_images_by_creation_date(folder_path, images)
+
         # Display directories in left frame
         if directories:
             self._display_directories(folder_path, directories)
@@ -290,6 +293,30 @@ class PreviewPanel:
                 return (2, 0, dirname.lower())
 
         return sorted(directories, key=sort_key)
+
+    def _sort_images_by_creation_date(self, folder_path, images):
+        """Sort images by creation date (oldest first).
+
+        Args:
+            folder_path: Base folder path.
+            images: List of image filenames to sort.
+
+        Returns:
+            Sorted list of image filenames.
+        """
+
+        def get_creation_time(filename):
+            try:
+                file_path = os.path.join(folder_path, filename)
+                # Use birth time (creation time) on Windows, or fallback to modification time
+                stat = os.stat(file_path)
+                # st_birthtime is available on Windows and some Unix systems
+                return getattr(stat, "st_birthtime", stat.st_mtime)
+            except Exception:
+                # Fallback to 0 if we can't get the time
+                return 0
+
+        return sorted(images, key=get_creation_time)
 
     def _display_directories(self, folder_path, directories):
         """Display directory list in the preview.
