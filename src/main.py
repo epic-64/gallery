@@ -378,7 +378,7 @@ class ImageProcessorApp:
             font=("Segoe UI", 10, "bold"),
             bg="#e8f5e9",
             fg="#27ae60",
-            padx=6,
+            padx=2,
             pady=2,
         ).pack(side="left")
 
