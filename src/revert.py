@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 SUPPORTED_EXTENSIONS = (".jpg", ".jpeg", ".png")
-OUTPUT_FOLDER_NAME = "output"
+OUTPUT_FOLDER_NAME = "_output"
 
 
 def revert_processing(folder: str) -> tuple[int, list[str]]:

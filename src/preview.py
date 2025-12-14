@@ -230,6 +230,9 @@ class PreviewPanel:
                 if ext in image_extensions:
                     images.append(item)
 
+        # Sort directories with custom logic
+        directories = self._sort_directories(directories)
+
         # Display directories in left frame
         if directories:
             self._display_directories(folder_path, directories)
@@ -255,6 +258,38 @@ class PreviewPanel:
                 fg="#95a5a6",
             )
             no_images_label.pack(pady=50)
+
+    def _sort_directories(self, directories):
+        """Sort directories with custom logic:
+        1. Directories with underscores come first (alphabetically among themselves)
+        2. Numeric-only directories sorted by numeric value
+        3. Other directories sorted alphabetically
+
+        Args:
+            directories: List of directory names to sort.
+
+        Returns:
+            Sorted list of directory names.
+        """
+
+        def sort_key(dirname):
+            # Check if directory contains underscore
+            has_underscore = "_" in dirname
+
+            # Check if directory is numeric only
+            is_numeric = dirname.isdigit()
+
+            if has_underscore:
+                # Priority 0: underscore directories, sorted alphabetically
+                return (0, 0, dirname.lower())
+            elif is_numeric:
+                # Priority 1: numeric directories, sorted by numeric value
+                return (1, int(dirname), "")
+            else:
+                # Priority 2: other directories, sorted alphabetically
+                return (2, 0, dirname.lower())
+
+        return sorted(directories, key=sort_key)
 
     def _display_directories(self, folder_path, directories):
         """Display directory list in the preview.
