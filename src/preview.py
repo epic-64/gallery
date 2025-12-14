@@ -9,6 +9,11 @@ from tkinter import Button, Canvas, Frame, Label, Scrollbar, messagebox
 
 from PIL import Image, ImageTk
 
+try:
+    from .review import ReviewWindow
+except ImportError:
+    from review import ReviewWindow
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,6 +30,7 @@ class PreviewPanel:
         self.preview_frame = None
         self.image_references = []  # Keep references to prevent garbage collection
         self.current_folder = None  # Track current folder for refresh
+        self.current_images = []  # Track current images for review mode
         self._create_panel()
 
     def _create_panel(self):
@@ -38,9 +44,31 @@ class PreviewPanel:
         )
         preview_label.pack(side="left", anchor="w")
 
+        # Button container for right side
+        button_container = Frame(header_frame, bg="#ffffff")
+        button_container.pack(side="right", anchor="e")
+
+        # Review button with modern styling
+        self.review_btn = Button(
+            button_container,
+            text="👁️ Review",
+            command=self._start_review,
+            font=("Segoe UI", 9, "bold"),
+            bg="#9b59b6",
+            fg="white",
+            activebackground="#8e44ad",
+            activeforeground="white",
+            cursor="hand2",
+            relief="flat",
+            padx=15,
+            pady=5,
+            state="disabled",  # Initially disabled until a folder is selected
+        )
+        self.review_btn.pack(side="right", padx=(0, 10))
+
         # Refresh button with modern styling
         self.refresh_btn = Button(
-            header_frame,
+            button_container,
             text="🔄 Refresh",
             command=self._refresh_preview,
             font=("Segoe UI", 9, "bold"),
@@ -54,7 +82,7 @@ class PreviewPanel:
             pady=5,
             state="disabled",  # Initially disabled until a folder is selected
         )
-        self.refresh_btn.pack(side="right", anchor="e")
+        self.refresh_btn.pack(side="right")
 
         # Create a frame with border for the preview area
         preview_container = Frame(self.parent, bg="#ecf0f1", relief="flat", bd=0)
@@ -158,6 +186,21 @@ class PreviewPanel:
         if self.current_folder:
             self.update(self.current_folder)
 
+    def _start_review(self):
+        """Start the review mode for all images in current folder."""
+        if not self.current_folder or not self.current_images:
+            messagebox.showinfo("No Images", "No images to review in the current folder.")
+            return
+
+        # Create a copy of the images list for the review window
+        images_to_review = self.current_images.copy()
+
+        # Open review window
+        ReviewWindow(self.parent, self.current_folder, images_to_review)
+
+        # Refresh preview after review window is closed (when it returns)
+        self.update(self.current_folder)
+
     def update(self, folder_path):
         """Update the preview panel with folder contents.
 
@@ -235,6 +278,15 @@ class PreviewPanel:
 
         # Sort images by creation date (oldest first)
         images = self._sort_images_by_creation_date(folder_path, images)
+
+        # Store images for review mode
+        self.current_images = images.copy()
+
+        # Enable/disable review button based on whether we have images
+        if images:
+            self.review_btn.config(state="normal")
+        else:
+            self.review_btn.config(state="disabled")
 
         # Display directories in left frame
         if directories:
