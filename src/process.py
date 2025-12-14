@@ -6,14 +6,13 @@ from pathlib import Path
 import piexif  # type: ignore
 from PIL import Image  # type: ignore
 
+try:
+    from .constants import DEFAULT_JPEG_QUALITY, INFO_FILENAME, OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
+except ImportError:
+    from constants import DEFAULT_JPEG_QUALITY, INFO_FILENAME, OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
+
 # Configure logging
 logger = logging.getLogger(__name__)
-
-# Constants
-SUPPORTED_EXTENSIONS = (".jpg", ".jpeg", ".png")
-INFO_FILENAME = "info.txt"
-OUTPUT_FOLDER_NAME = "output"
-DEFAULT_JPEG_QUALITY = 100
 
 
 def get_image_files(folder: str) -> list[str]:

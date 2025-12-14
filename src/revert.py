@@ -3,12 +3,13 @@ import os
 import shutil
 from pathlib import Path
 
+try:
+    from .constants import OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
+except ImportError:
+    from constants import OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
+
 # Configure logging
 logger = logging.getLogger(__name__)
-
-# Constants
-SUPPORTED_EXTENSIONS = (".jpg", ".jpeg", ".png")
-OUTPUT_FOLDER_NAME = "_output"
 
 
 def revert_processing(folder: str) -> tuple[int, list[str]]:

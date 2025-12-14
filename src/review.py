@@ -7,6 +7,11 @@ from tkinter import Button, Frame, Label, Toplevel, messagebox
 
 from PIL import Image, ImageTk
 
+try:
+    from .constants import FIX_FOLDER_NAME, IGNORE_FOLDER_NAME
+except ImportError:
+    from constants import FIX_FOLDER_NAME, IGNORE_FOLDER_NAME
+
 logger = logging.getLogger(__name__)
 
 
@@ -228,7 +233,7 @@ class ReviewWindow:
 
         try:
             # Create _fix folder if it doesn't exist
-            fix_folder = os.path.join(self.folder_path, "_fix")
+            fix_folder = os.path.join(self.folder_path, FIX_FOLDER_NAME)
             os.makedirs(fix_folder, exist_ok=True)
 
             # Destination path
@@ -265,7 +270,7 @@ class ReviewWindow:
 
         try:
             # Create _ignore folder if it doesn't exist
-            ignore_folder = os.path.join(self.folder_path, "_ignore")
+            ignore_folder = os.path.join(self.folder_path, IGNORE_FOLDER_NAME)
             os.makedirs(ignore_folder, exist_ok=True)
 
             # Destination path

@@ -10,8 +10,10 @@ from tkinter import Button, Canvas, Frame, Label, Scrollbar, messagebox
 from PIL import Image, ImageTk
 
 try:
+    from .constants import IGNORE_FOLDER_NAME
     from .review import ReviewWindow
 except ImportError:
+    from constants import IGNORE_FOLDER_NAME
     from review import ReviewWindow
 
 logger = logging.getLogger(__name__)
@@ -577,7 +579,7 @@ class PreviewPanel:
             folder_path = os.path.dirname(image_path)
 
             # Create ignore subfolder if it doesn't exist
-            ignore_folder = os.path.join(folder_path, "_ignore")
+            ignore_folder = os.path.join(folder_path, IGNORE_FOLDER_NAME)
             os.makedirs(ignore_folder, exist_ok=True)
 
             # Destination path
