@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 def _is_stripped_file(stem: str, folder_number: str) -> bool:
     """Check if a file is a stripped/renamed file based on folder number.
 
-    Stripped files will have the folder number in their name with separators.
+    Stripped files will have the folder number at the START or END of the filename,
+    separated by common separators. This avoids false positives from numbers appearing
+    in the middle of original filenames.
 
     Args:
         stem: The filename stem (without extension)
@@ -24,19 +26,28 @@ def _is_stripped_file(stem: str, folder_number: str) -> bool:
     Returns:
         True if this is a stripped file, False if it's an original
     """
-    # Check if this looks like a stripped/renamed file
-    # It's a stripped file if the stem contains the folder number with common separators
-    return (
-        f" {folder_number}" in stem  # suffix mode with space separator
-        or f"-{folder_number}" in stem  # suffix mode with dash separator
-        or f"_{folder_number}" in stem  # suffix mode with underscore separator
-        or f"#{folder_number}" in stem  # suffix mode with hash separator
-        or f"{folder_number} " in stem  # prefix mode with space separator
-        or f"{folder_number}-" in stem  # prefix mode with dash separator
-        or f"{folder_number}_" in stem  # prefix mode with underscore separator
-        or f"{folder_number}#" in stem  # prefix mode with hash separator
-        or stem == folder_number  # just the number
-    )
+    # Common separators used in processing
+    common_separators = [" ", "-", "_", "#", " #", " - ", "_", "-"]
+
+    # Check for zero-padded versions (1-4 digits)
+    padded_numbers = [folder_number.zfill(i) for i in range(1, 5)]
+
+    for padded_num in padded_numbers:
+        # Check if number is at the START (prefix mode)
+        for sep in common_separators:
+            if stem.startswith(padded_num + sep):
+                return True
+
+        # Check if number is at the END (suffix mode)
+        for sep in common_separators:
+            if stem.endswith(sep + padded_num):
+                return True
+
+        # Check if stem is just the number
+        if stem == padded_num:
+            return True
+
+    return False
 
 
 def _restore_original_file(item: Path, folder_path: Path) -> tuple[bool, str]:
