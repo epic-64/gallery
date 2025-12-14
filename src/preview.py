@@ -2,9 +2,10 @@
 
 import logging
 import os
+import shutil
 import subprocess
 import sys
-from tkinter import Canvas, Frame, Label, Scrollbar, messagebox
+from tkinter import Button, Canvas, Frame, Label, Scrollbar, messagebox
 
 from PIL import Image, ImageTk
 
@@ -23,6 +24,7 @@ class PreviewPanel:
         self.parent = parent
         self.preview_frame = None
         self.image_references = []  # Keep references to prevent garbage collection
+        self.current_folder = None  # Track current folder for refresh
         self._create_panel()
 
     def _create_panel(self):
@@ -76,6 +78,9 @@ class PreviewPanel:
         Args:
             folder_path: Path to the folder to preview.
         """
+        # Store current folder for refresh operations
+        self.current_folder = folder_path
+
         # Clear previous content
         for widget in self.preview_frame.winfo_children():
             widget.destroy()
@@ -303,6 +308,23 @@ class PreviewPanel:
             )
             filesize_label.pack(fill="x")
 
+            # Add Ignore button
+            ignore_btn = Button(
+                img_frame,
+                text="Ignore",
+                command=lambda: self._ignore_image(image_path, image_name),
+                font=("Segoe UI", 8),
+                bg="#ff6b6b",
+                fg="white",
+                activebackground="#ee5a52",
+                activeforeground="white",
+                cursor="hand2",
+                relief="flat",
+                padx=10,
+                pady=3,
+            )
+            ignore_btn.pack(side="right", padx=5)
+
         except Exception:
             # If thumbnail fails, show text only
             error_label = Label(
@@ -314,6 +336,44 @@ class PreviewPanel:
                 anchor="w",
             )
             error_label.pack(fill="x", padx=10, pady=5)
+
+    def _ignore_image(self, image_path, image_name):
+        """Move an image to the 'ignore' subfolder.
+
+        Args:
+            image_path: Full path to the image file.
+            image_name: Name of the image file.
+        """
+        try:
+            # Get the folder containing the image
+            folder_path = os.path.dirname(image_path)
+
+            # Create ignore subfolder if it doesn't exist
+            ignore_folder = os.path.join(folder_path, "ignore")
+            os.makedirs(ignore_folder, exist_ok=True)
+
+            # Destination path
+            destination = os.path.join(ignore_folder, image_name)
+
+            # Check if file already exists in ignore folder
+            if os.path.exists(destination):
+                response = messagebox.askyesno(
+                    "File Exists", f"'{image_name}' already exists in the ignore folder.\nOverwrite it?"
+                )
+                if not response:
+                    return
+
+            # Move the image
+            shutil.move(image_path, destination)
+            logger.info(f"Moved {image_name} to ignore folder")
+
+            # Refresh the preview
+            if self.current_folder:
+                self.update(self.current_folder)
+
+        except Exception as e:
+            logger.error(f"Failed to ignore image {image_name}: {e}")
+            messagebox.showerror("Error", f"Could not move image to ignore folder:\n{e}")
 
     def _open_in_explorer(self, path):
         """Open a directory in the OS file explorer.
