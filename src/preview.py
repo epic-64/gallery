@@ -349,7 +349,7 @@ class PreviewPanel:
             folder_path = os.path.dirname(image_path)
 
             # Create ignore subfolder if it doesn't exist
-            ignore_folder = os.path.join(folder_path, "ignore")
+            ignore_folder = os.path.join(folder_path, "_ignore")
             os.makedirs(ignore_folder, exist_ok=True)
 
             # Destination path
