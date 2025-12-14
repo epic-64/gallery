@@ -205,6 +205,64 @@ class PreviewPanel:
         # Refresh preview after review window is closed (when it returns)
         self.update(self.current_folder)
 
+    def _show_error_message(self, message: str, color: str = "#e74c3c"):
+        """Display an error message in both frames.
+
+        Args:
+            message: The error message to display
+            color: The text color (default: red)
+        """
+        error_label_left = Label(self.dirs_frame, text=message, font=("Segoe UI", 11), bg="#fafbfc", fg=color)
+        error_label_left.pack(pady=50)
+        error_label_right = Label(self.images_frame, text=message, font=("Segoe UI", 11), bg="#fafbfc", fg=color)
+        error_label_right.pack(pady=50)
+
+    def _get_folder_items(self, folder_path: str) -> list[str] | None:
+        """Get sorted list of items in folder, or None if error.
+
+        Args:
+            folder_path: Path to the folder
+
+        Returns:
+            Sorted list of items, or None if folder doesn't exist or permission denied
+        """
+        if not os.path.exists(folder_path):
+            self._show_error_message("❌ Folder not found")
+            return None
+
+        try:
+            items = os.listdir(folder_path)
+            items.sort()
+            return items
+        except PermissionError:
+            self._show_error_message("🔒 Permission denied")
+            return None
+
+    def _separate_dirs_and_images(self, folder_path: str, items: list[str]) -> tuple[list[str], list[str]]:
+        """Separate items into directories and images.
+
+        Args:
+            folder_path: Path to the folder
+            items: List of items to separate
+
+        Returns:
+            Tuple of (directories list, images list)
+        """
+        image_extensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
+        directories = []
+        images = []
+
+        for item in items:
+            item_path = os.path.join(folder_path, item)
+            if os.path.isdir(item_path):
+                directories.append(item)
+            else:
+                _, ext = os.path.splitext(item.lower())
+                if ext in image_extensions:
+                    images.append(item)
+
+        return directories, images
+
     def update(self, folder_path):
         """Update the preview panel with folder contents.
 
@@ -224,63 +282,19 @@ class PreviewPanel:
             widget.destroy()
         self.image_references.clear()
 
-        if not os.path.exists(folder_path):
-            error_label_left = Label(
-                self.dirs_frame, text="❌ Folder not found", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
-            )
-            error_label_left.pack(pady=50)
-            error_label_right = Label(
-                self.images_frame, text="❌ Folder not found", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
-            )
-            error_label_right.pack(pady=50)
+        # Get folder items with error handling
+        items = self._get_folder_items(folder_path)
+        if items is None:
             return
 
-        # Get all files and directories
-        try:
-            items = os.listdir(folder_path)
-            items.sort()
-        except PermissionError:
-            error_label_left = Label(
-                self.dirs_frame, text="🔒 Permission denied", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
-            )
-            error_label_left.pack(pady=50)
-            error_label_right = Label(
-                self.images_frame, text="🔒 Permission denied", font=("Segoe UI", 11), bg="#fafbfc", fg="#e74c3c"
-            )
-            error_label_right.pack(pady=50)
-            return
-
+        # Handle empty folder
         if not items:
-            empty_label_left = Label(
-                self.dirs_frame, text="📭 Empty folder", font=("Segoe UI", 11), bg="#fafbfc", fg="#95a5a6"
-            )
-            empty_label_left.pack(pady=50)
-            empty_label_right = Label(
-                self.images_frame, text="📭 Empty folder", font=("Segoe UI", 11), bg="#fafbfc", fg="#95a5a6"
-            )
-            empty_label_right.pack(pady=50)
+            self._show_error_message("📭 Empty folder", "#95a5a6")
             return
 
-        # Supported image extensions
-        image_extensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp", ".tiff", ".webp"}
-
-        # Separate directories and images
-        directories = []
-        images = []
-
-        for item in items:
-            item_path = os.path.join(folder_path, item)
-            if os.path.isdir(item_path):
-                directories.append(item)
-            else:
-                _, ext = os.path.splitext(item.lower())
-                if ext in image_extensions:
-                    images.append(item)
-
-        # Sort directories with custom logic
+        # Separate and sort directories and images
+        directories, images = self._separate_dirs_and_images(folder_path, items)
         directories = self._sort_directories(directories)
-
-        # Sort images by creation date (oldest first)
         images = self._sort_images_by_creation_date(folder_path, images)
 
         # Store images for review mode
