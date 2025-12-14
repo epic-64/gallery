@@ -29,10 +29,32 @@ class PreviewPanel:
 
     def _create_panel(self):
         """Create the preview panel UI structure."""
+        # Header frame for title and refresh button
+        header_frame = Frame(self.parent, bg="#f0f0f0")
+        header_frame.pack(fill="x", pady=(0, 10))
+
         preview_label = Label(
-            self.parent, text="Folder Preview", font=("Segoe UI", 12, "bold"), bg="#f0f0f0", fg="#333333"
+            header_frame, text="Folder Preview", font=("Segoe UI", 12, "bold"), bg="#f0f0f0", fg="#333333"
         )
-        preview_label.pack(anchor="w", pady=(0, 10))
+        preview_label.pack(side="left", anchor="w")
+
+        # Refresh button
+        self.refresh_btn = Button(
+            header_frame,
+            text="🔄 Refresh",
+            command=self._refresh_preview,
+            font=("Segoe UI", 9),
+            bg="#4CAF50",
+            fg="white",
+            activebackground="#45a049",
+            activeforeground="white",
+            cursor="hand2",
+            relief="flat",
+            padx=10,
+            pady=3,
+            state="disabled",  # Initially disabled until a folder is selected
+        )
+        self.refresh_btn.pack(side="right", anchor="e")
 
         # Create a frame with border for the preview area
         preview_container = Frame(self.parent, bg="#d0d0d0", relief="solid", bd=1)
@@ -72,6 +94,11 @@ class PreviewPanel:
         )
         empty_message.pack(pady=50)
 
+    def _refresh_preview(self):
+        """Refresh the current folder preview."""
+        if self.current_folder:
+            self.update(self.current_folder)
+
     def update(self, folder_path):
         """Update the preview panel with folder contents.
 
@@ -80,6 +107,9 @@ class PreviewPanel:
         """
         # Store current folder for refresh operations
         self.current_folder = folder_path
+
+        # Enable refresh button now that we have a folder
+        self.refresh_btn.config(state="normal")
 
         # Clear previous content
         for widget in self.preview_frame.winfo_children():
