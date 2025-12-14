@@ -51,9 +51,10 @@ class ImageProcessorApp:
         main_container = Frame(self.root, bg="#f5f7fa")
         main_container.pack(padx=25, pady=20, fill="both", expand=True)
 
-        # Left side - Controls (Card style)
-        left_frame = Frame(main_container, bg="#ffffff", relief="flat", bd=0)
-        left_frame.pack(side="left", fill="both", padx=(0, 15))
+        # Left side - Controls (Card style) with fixed width
+        left_frame = Frame(main_container, bg="#ffffff", relief="flat", bd=0, width=400)
+        left_frame.pack(side="left", fill="y", padx=(0, 15))
+        left_frame.pack_propagate(False)  # Prevent frame from resizing to fit contents
 
         # Add subtle shadow effect with a border frame
         left_border = Frame(main_container, bg="#e8ecef", relief="flat")
