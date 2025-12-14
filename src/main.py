@@ -3,10 +3,12 @@ import os
 from tkinter import Button, Entry, Frame, Label, Radiobutton, StringVar, Tk, filedialog, messagebox
 
 try:
+    from .config import load_config, save_config
     from .preview import PreviewPanel
     from .process import process_images
     from .revert import revert_processing
 except ImportError:
+    from config import load_config, save_config
     from preview import PreviewPanel
     from process import process_images
     from revert import revert_processing
@@ -36,15 +38,22 @@ class ImageProcessorApp:
         y = (self.root.winfo_screenheight() // 2) - (800 // 2)
         self.root.geometry(f"1344x800+{x}+{y}")
 
+        # Load configuration
+        self.config = load_config()
+        logger.info(f"Loaded config: {self.config}")
+
         # Variables
         self.folder_path = StringVar()
         self.base_name = StringVar()
         self.mode = StringVar(value="process")
-        self.number_mode = StringVar(value="prefix")  # "prefix" or "suffix"
-        self.separator = StringVar(value=" #")
+        self.number_mode = StringVar(value=self.config.get("number_mode", "prefix"))
+        self.separator = StringVar(value=self.config.get("separator", " #"))
         self.preview_panel = None  # Will be initialized in create_widgets
 
         self.create_widgets()
+
+        # Open folder selection dialog on startup
+        self.root.after(100, self.browse_folder)
 
     def create_widgets(self):
         """Create all GUI widgets."""
@@ -309,6 +318,8 @@ class ImageProcessorApp:
                 self._update_filename_preview()
             # Update preview
             self.preview_panel.update(folder_selected)
+            # Save configuration
+            self._save_config()
 
     def on_mode_change(self):
         """Handle mode change to show/hide base name field."""
@@ -319,6 +330,12 @@ class ImageProcessorApp:
             self.name_frame.pack(fill="x", pady=(0, 25), before=self.button_frame)
             self.naming_config_frame.pack(fill="x", pady=(0, 20), before=self.button_frame)
             self._update_filename_preview()
+
+    def _save_config(self):
+        """Save current configuration to file."""
+        self.config["number_mode"] = self.number_mode.get()
+        self.config["separator"] = self.separator.get()
+        save_config(self.config)
 
     def _update_filename_preview(self):
         """Update the filename preview example and configuration summary."""
@@ -441,6 +458,7 @@ class ImageProcessorApp:
 
         def on_save():
             self._update_filename_preview()
+            self._save_config()
             dialog.destroy()
 
         save_btn = Button(
