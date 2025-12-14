@@ -90,16 +90,32 @@ class ImageProcessorApp:
         folder_frame = Frame(content_frame, bg="#ffffff")
         folder_frame.pack(fill="x", pady=(0, 25))
 
-        folder_label = Label(
-            folder_frame, text="📁 Image Folder", font=("Segoe UI", 11, "bold"), bg="#ffffff", fg="#2c3e50"
-        )
-        folder_label.pack(anchor="w", pady=(0, 8))
+        folder_header = Frame(folder_frame, bg="#ffffff")
+        folder_header.pack(fill="x")
 
-        folder_input_frame = Frame(folder_frame, bg="#ffffff")
-        folder_input_frame.pack(fill="x")
+        folder_label = Label(
+            folder_header, text="📁 Image Folder", font=("Segoe UI", 11, "bold"), bg="#ffffff", fg="#2c3e50"
+        )
+        folder_label.pack(side="left", anchor="w")
+
+        browse_btn = Button(
+            folder_header,
+            text="📂 Browse",
+            command=self.browse_folder,
+            font=("Segoe UI", 9),
+            bg="#3498db",
+            fg="white",
+            activebackground="#2980b9",
+            activeforeground="white",
+            cursor="hand2",
+            relief="flat",
+            padx=12,
+            pady=4,
+        )
+        browse_btn.pack(side="right", anchor="e")
 
         self.folder_entry = Entry(
-            folder_input_frame,
+            folder_frame,
             textvariable=self.folder_path,
             font=("Segoe UI", 10),
             relief="solid",
@@ -108,23 +124,7 @@ class ImageProcessorApp:
             fg="#2c3e50",
             insertbackground="#2c3e50",
         )
-        self.folder_entry.pack(side="left", fill="x", expand=True, ipady=8)
-
-        browse_btn = Button(
-            folder_input_frame,
-            text="📂 Browse",
-            command=self.browse_folder,
-            font=("Segoe UI", 10, "bold"),
-            bg="#3498db",
-            fg="white",
-            activebackground="#2980b9",
-            activeforeground="white",
-            cursor="hand2",
-            relief="flat",
-            padx=20,
-            pady=8,
-        )
-        browse_btn.pack(side="left", padx=(12, 0))
+        self.folder_entry.pack(fill="x", ipady=8, pady=(8, 0))
 
         # Mode selection section
         mode_frame = Frame(content_frame, bg="#ffffff")
