@@ -350,15 +350,15 @@ class ImageProcessorApp:
         # Create dialog window
         dialog = Toplevel(self.root)
         dialog.title("Naming Configuration")
-        dialog.geometry("400x280")
+        dialog.geometry("450x320")
         dialog.configure(bg="#ffffff")
         dialog.resizable(False, False)
 
         # Center the dialog
         dialog.update_idletasks()
-        x = (dialog.winfo_screenwidth() // 2) - (400 // 2)
-        y = (dialog.winfo_screenheight() // 2) - (280 // 2)
-        dialog.geometry(f"400x280+{x}+{y}")
+        x = (dialog.winfo_screenwidth() // 2) - (450 // 2)
+        y = (dialog.winfo_screenheight() // 2) - (320 // 2)
+        dialog.geometry(f"450x320+{x}+{y}")
 
         # Make it modal
         dialog.transient(self.root)
@@ -366,7 +366,7 @@ class ImageProcessorApp:
 
         # Content
         content = Frame(dialog, bg="#ffffff")
-        content.pack(fill="both", expand=True, padx=30, pady=20)
+        content.pack(fill="both", expand=True, padx=30, pady=(20, 10))
 
         # Number position section
         position_label = Label(
@@ -437,7 +437,7 @@ class ImageProcessorApp:
 
         # Buttons
         button_frame = Frame(dialog, bg="#ffffff")
-        button_frame.pack(fill="x", padx=30, pady=(0, 20))
+        button_frame.pack(fill="x", padx=30, pady=(10, 25))
 
         def on_save():
             self._update_filename_preview()
