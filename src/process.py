@@ -197,12 +197,16 @@ def remove_exif_and_save(img_path: str, target_path: str) -> None:
         raise
 
 
-def process_images(image_folder: str, base_name: str) -> tuple[int, list[str]]:
+def process_images(
+    image_folder: str, base_name: str, number_mode: str = "suffix", separator: str = " #"
+) -> tuple[int, list[str]]:
     """Process images by extracting EXIF, creating stripped copies, and organizing into folders.
 
     Args:
         image_folder: Path to folder containing images
         base_name: Base filename for renamed images
+        number_mode: Where to place the number - "prefix" or "suffix" (default: "suffix")
+        separator: Separator between name and number (default: " #")
 
     Returns:
         Tuple of (number of images processed, list of error messages)
@@ -247,7 +251,13 @@ def process_images(image_folder: str, base_name: str) -> tuple[int, list[str]]:
                 # Create stripped version with new name
                 folder_number = os.path.basename(folder_path)
                 ext = os.path.splitext(image_file)[1].lower()
-                new_name = f"{base_name} #{folder_number}{ext}"
+
+                # Build filename based on number mode
+                if number_mode == "prefix":
+                    new_name = f"{folder_number}{separator}{base_name}{ext}"
+                else:  # suffix (default)
+                    new_name = f"{base_name}{separator}{folder_number}{ext}"
+
                 stripped_path = os.path.join(folder_path, new_name)
                 remove_exif_and_save(new_original_path, stripped_path)
 

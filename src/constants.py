@@ -13,3 +13,7 @@ INFO_FILENAME = "info.txt"
 
 # Image processing
 DEFAULT_JPEG_QUALITY = 100
+
+# Naming configuration
+DEFAULT_NUMBER_MODE = "suffix"  # "prefix" or "suffix"
+DEFAULT_SEPARATOR = " #"

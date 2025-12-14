@@ -40,6 +40,8 @@ class ImageProcessorApp:
         self.folder_path = StringVar()
         self.base_name = StringVar()
         self.mode = StringVar(value="process")
+        self.number_mode = StringVar(value="prefix")  # "prefix" or "suffix"
+        self.separator = StringVar(value=" #")
         self.preview_panel = None  # Will be initialized in create_widgets
 
         self.create_widgets()
@@ -205,15 +207,97 @@ class ImageProcessorApp:
             insertbackground="#2c3e50",
         )
         self.name_entry.pack(fill="x", ipady=10)
+        self.name_entry.bind("<KeyRelease>", lambda e: self._update_filename_preview())
 
         name_hint = Label(
             self.name_frame,
-            text="💡 Images will be renamed as: basename_001.jpg, basename_002.jpg, etc.",
+            text="💡 Example preview will be shown below",
             font=("Segoe UI", 9),
             bg="#ffffff",
             fg="#7f8c8d",
         )
         name_hint.pack(anchor="w", pady=(8, 0))
+
+        # Number mode section
+        self.number_mode_frame = Frame(content_frame, bg="#ffffff")
+        self.number_mode_frame.pack(fill="x", pady=(0, 20))
+
+        mode_label = Label(
+            self.number_mode_frame,
+            text="🔢 Number Position",
+            font=("Segoe UI", 11, "bold"),
+            bg="#ffffff",
+            fg="#2c3e50",
+        )
+        mode_label.pack(anchor="w", pady=(0, 8))
+
+        mode_options_frame = Frame(self.number_mode_frame, bg="#ffffff")
+        mode_options_frame.pack(anchor="w", fill="x")
+
+        prefix_radio = Radiobutton(
+            mode_options_frame,
+            text="Prefix (001 - basename)",
+            variable=self.number_mode,
+            value="prefix",
+            font=("Segoe UI", 10),
+            bg="#ffffff",
+            fg="#2c3e50",
+            selectcolor="#ffffff",
+            activebackground="#ffffff",
+            command=self._update_filename_preview,
+        )
+        prefix_radio.pack(anchor="w", pady=2)
+
+        suffix_radio = Radiobutton(
+            mode_options_frame,
+            text="Suffix (basename - 001)",
+            variable=self.number_mode,
+            value="suffix",
+            font=("Segoe UI", 10),
+            bg="#ffffff",
+            fg="#2c3e50",
+            selectcolor="#ffffff",
+            activebackground="#ffffff",
+            command=self._update_filename_preview,
+        )
+        suffix_radio.pack(anchor="w", pady=2)
+
+        # Separator section
+        self.separator_frame = Frame(content_frame, bg="#ffffff")
+        self.separator_frame.pack(fill="x", pady=(0, 20))
+
+        separator_label = Label(
+            self.separator_frame,
+            text="➖ Separator",
+            font=("Segoe UI", 11, "bold"),
+            bg="#ffffff",
+            fg="#2c3e50",
+        )
+        separator_label.pack(anchor="w", pady=(0, 8))
+
+        self.separator_entry = Entry(
+            self.separator_frame,
+            textvariable=self.separator,
+            font=("Segoe UI", 11),
+            relief="solid",
+            bd=1,
+            bg="#f8f9fa",
+            fg="#2c3e50",
+            insertbackground="#2c3e50",
+            width=10,
+        )
+        self.separator_entry.pack(anchor="w", ipady=8)
+        self.separator_entry.bind("<KeyRelease>", lambda e: self._update_filename_preview())
+
+        # Preview example
+        self.preview_example_label = Label(
+            self.separator_frame,
+            text="",
+            font=("Segoe UI", 9),
+            bg="#ffffff",
+            fg="#27ae60",
+        )
+        self.preview_example_label.pack(anchor="w", pady=(8, 0))
 
         # RUN button frame (always at the bottom of settings panel)
         self.button_frame = Frame(content_frame, bg="#ffffff")
@@ -247,6 +331,7 @@ class ImageProcessorApp:
             if self.mode.get() == "process":
                 folder_name = os.path.basename(folder_selected.rstrip(os.sep))
                 self.base_name.set(folder_name)
+                self._update_filename_preview()
             # Update preview
             self.preview_panel.update(folder_selected)
 
@@ -254,8 +339,31 @@ class ImageProcessorApp:
         """Handle mode change to show/hide base name field."""
         if self.mode.get() == "revert":
             self.name_frame.pack_forget()
+            self.number_mode_frame.pack_forget()
+            self.separator_frame.pack_forget()
         else:
             self.name_frame.pack(fill="x", pady=(0, 25), before=self.button_frame)
+            self.number_mode_frame.pack(fill="x", pady=(0, 20), before=self.button_frame)
+            self.separator_frame.pack(fill="x", pady=(0, 20), before=self.button_frame)
+            self._update_filename_preview()
+
+    def _update_filename_preview(self):
+        """Update the filename preview example."""
+        base_name = self.base_name.get().strip()
+        separator = self.separator.get()
+        number_mode = self.number_mode.get()
+
+        if not base_name:
+            self.preview_example_label.config(text="")
+            return
+
+        # Generate example
+        if number_mode == "prefix":
+            example = f"📝 Example: 001{separator}{base_name}.jpg, 002{separator}{base_name}.jpg, ..."
+        else:  # suffix
+            example = f"📝 Example: {base_name}{separator}001.jpg, {base_name}{separator}002.jpg, ..."
+
+        self.preview_example_label.config(text=example)
 
     def run_operation(self):
         """Execute the selected operation."""
@@ -306,8 +414,13 @@ class ImageProcessorApp:
             messagebox.showerror("Error", "Please enter a base filename.")
             return
 
-        logger.info(f"Starting image processing with base name: {base_name}")
-        processed_count, errors = process_images(folder, base_name)
+        number_mode = self.number_mode.get()
+        separator = self.separator.get()
+
+        logger.info(
+            f"Starting image processing with base name: {base_name}, mode: {number_mode}, separator: '{separator}'"
+        )
+        processed_count, errors = process_images(folder, base_name, number_mode, separator)
 
         if errors:
             error_summary = "\n".join(errors[:5])
