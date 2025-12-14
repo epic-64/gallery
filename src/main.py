@@ -46,24 +46,6 @@ class ImageProcessorApp:
 
     def create_widgets(self):
         """Create all GUI widgets."""
-        # Header with gradient-like effect
-        header_frame = Frame(self.root, bg="#2c3e50", height=80)
-        header_frame.pack(fill="x")
-        header_frame.pack_propagate(False)
-
-        title_label = Label(
-            header_frame, text="🖼️ Image Processing Tool", font=("Segoe UI", 22, "bold"), bg="#2c3e50", fg="#ffffff"
-        )
-        title_label.pack(pady=20)
-
-        subtitle_label = Label(
-            header_frame,
-            text="Professional batch image renaming and organization",
-            font=("Segoe UI", 9),
-            bg="#2c3e50",
-            fg="#bdc3c7",
-        )
-        subtitle_label.place(relx=0.5, rely=0.7, anchor="center")
 
         # Main container with two columns
         main_container = Frame(self.root, bg="#f5f7fa")
@@ -232,15 +214,12 @@ class ImageProcessorApp:
         )
         name_hint.pack(anchor="w", pady=(8, 0))
 
-        # Preview Panel (right side)
-        self.preview_panel = PreviewPanel(right_frame)
-
-        # Action buttons
-        button_frame = Frame(self.root, bg="#f5f7fa")
-        button_frame.pack(pady=(10, 25))
+        # RUN button frame (always at the bottom of settings panel)
+        self.button_frame = Frame(content_frame, bg="#ffffff")
+        self.button_frame.pack(side="bottom", fill="x", pady=(15, 0))
 
         run_btn = Button(
-            button_frame,
+            self.button_frame,
             text="▶️  RUN OPERATION",
             command=self.run_operation,
             font=("Segoe UI", 12, "bold"),
@@ -249,27 +228,14 @@ class ImageProcessorApp:
             activebackground="#229954",
             activeforeground="white",
             cursor="hand2",
-            width=20,
-            height=2,
             relief="flat",
+            padx=20,
+            pady=12,
         )
-        run_btn.pack(side="left", padx=8)
+        run_btn.pack(fill="x")
 
-        cancel_btn = Button(
-            button_frame,
-            text="✖  CANCEL",
-            command=self.root.quit,
-            font=("Segoe UI", 11),
-            bg="#e74c3c",
-            fg="white",
-            activebackground="#c0392b",
-            activeforeground="white",
-            cursor="hand2",
-            width=15,
-            height=2,
-            relief="flat",
-        )
-        cancel_btn.pack(side="left", padx=8)
+        # Preview Panel (right side)
+        self.preview_panel = PreviewPanel(right_frame)
 
     def browse_folder(self):
         """Open folder browser dialog."""
@@ -288,7 +254,7 @@ class ImageProcessorApp:
         if self.mode.get() == "revert":
             self.name_frame.pack_forget()
         else:
-            self.name_frame.pack(fill="x", pady=(0, 20))
+            self.name_frame.pack(fill="x", pady=(0, 25), before=self.button_frame)
 
     def run_operation(self):
         """Execute the selected operation."""
