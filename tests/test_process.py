@@ -5,7 +5,7 @@ from pathlib import Path
 import piexif
 from PIL import Image
 
-from src.process import (
+from woop.process import (
     decode_exif_user_comment,
     extract_exif,
     get_existing_numbered_folders,

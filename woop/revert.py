@@ -3,10 +3,7 @@ import os
 import shutil
 from pathlib import Path
 
-try:
-    from .constants import OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
-except ImportError:
-    from constants import OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
+from .constants import OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
 
 # Configure logging
 logger = logging.getLogger(__name__)

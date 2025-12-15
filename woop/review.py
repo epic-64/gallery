@@ -7,10 +7,7 @@ from tkinter import Button, Frame, Label, Toplevel, messagebox
 
 from PIL import Image, ImageTk
 
-try:
-    from .constants import FIX_FOLDER_NAME, IGNORE_FOLDER_NAME
-except ImportError:
-    from constants import FIX_FOLDER_NAME, IGNORE_FOLDER_NAME
+from .constants import FIX_FOLDER_NAME, IGNORE_FOLDER_NAME
 
 logger = logging.getLogger(__name__)
 

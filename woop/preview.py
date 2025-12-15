@@ -9,12 +9,8 @@ from tkinter import Button, Canvas, Frame, Label, Scrollbar, messagebox
 
 from PIL import Image, ImageTk
 
-try:
-    from .constants import IGNORE_FOLDER_NAME
-    from .review import ReviewWindow
-except ImportError:
-    from constants import IGNORE_FOLDER_NAME
-    from review import ReviewWindow
+from .constants import IGNORE_FOLDER_NAME
+from .review import ReviewWindow
 
 logger = logging.getLogger(__name__)
 

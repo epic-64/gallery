@@ -6,10 +6,7 @@ from pathlib import Path
 import piexif  # type: ignore
 from PIL import Image  # type: ignore
 
-try:
-    from .constants import DEFAULT_JPEG_QUALITY, INFO_FILENAME, OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
-except ImportError:
-    from constants import DEFAULT_JPEG_QUALITY, INFO_FILENAME, OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
+from .constants import DEFAULT_JPEG_QUALITY, INFO_FILENAME, OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
 
 # Configure logging
 logger = logging.getLogger(__name__)

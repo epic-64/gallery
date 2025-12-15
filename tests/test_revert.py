@@ -7,9 +7,9 @@ from pathlib import Path
 import pytest
 from PIL import Image
 
-from src.constants import INFO_FILENAME, OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
-from src.process import process_images
-from src.revert import _is_stripped_file, revert_processing
+from woop.constants import INFO_FILENAME, OUTPUT_FOLDER_NAME, SUPPORTED_EXTENSIONS
+from woop.process import process_images
+from woop.revert import _is_stripped_file, revert_processing
 
 
 class TestIsStrippedFile:

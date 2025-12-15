@@ -2,16 +2,10 @@ import logging
 import os
 from tkinter import Button, Entry, Frame, Label, Radiobutton, StringVar, Tk, filedialog, messagebox
 
-try:
-    from .config import load_config, save_config
-    from .preview import PreviewPanel
-    from .process import process_images
-    from .revert import revert_processing
-except ImportError:
-    from config import load_config, save_config
-    from preview import PreviewPanel
-    from process import process_images
-    from revert import revert_processing
+from .config import load_config, save_config
+from .preview import PreviewPanel
+from .process import process_images
+from .revert import revert_processing
 
 # Configure logging
 logging.basicConfig(
