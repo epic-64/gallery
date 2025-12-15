@@ -69,6 +69,25 @@ class PreviewPanel:
         )
         self.review_btn.pack(side="right", padx=(0, 10))
 
+        # Open in Explorer button with modern styling
+        self.explorer_btn = Button(
+            button_container,
+            text="📁 Open in Explorer",
+            command=self._open_current_folder_in_explorer,
+            font=("Segoe UI", 9, "bold"),
+            bg="#16a085",
+            fg="white",
+            activebackground="#138871",
+            activeforeground="white",
+            disabledforeground="#ffffff",
+            cursor="hand2",
+            relief="flat",
+            padx=15,
+            pady=5,
+            state="disabled",  # Initially disabled until a folder is selected
+        )
+        self.explorer_btn.pack(side="right", padx=(0, 10))
+
         # Refresh button with modern styling
         self.refresh_btn = Button(
             button_container,
@@ -205,6 +224,14 @@ class PreviewPanel:
         # Refresh preview after review window is closed (when it returns)
         self.update(self.current_folder)
 
+    def _open_current_folder_in_explorer(self):
+        """Open the current folder in the OS file explorer."""
+        if not self.current_folder or not os.path.exists(self.current_folder):
+            messagebox.showwarning("No Folder", "No valid folder selected.")
+            return
+
+        self._open_in_explorer(self.current_folder)
+
     def _show_error_message(self, message: str, color: str = "#e74c3c"):
         """Display an error message in both frames.
 
@@ -272,8 +299,9 @@ class PreviewPanel:
         # Store current folder for refresh operations
         self.current_folder = folder_path
 
-        # Enable refresh button now that we have a folder
+        # Enable refresh and explorer buttons now that we have a folder
         self.refresh_btn.config(state="normal")
+        self.explorer_btn.config(state="normal")
 
         # Clear previous content from both frames
         for widget in self.dirs_frame.winfo_children():
