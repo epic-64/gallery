@@ -5,4 +5,4 @@ setlocal
 call .venv\Scripts\activate.bat
 
 :: Run the script
-python src\main.py
+python run.py
