@@ -47,7 +47,6 @@ def clean_build_artifacts():
     print("Cleaning previous build artifacts...")
 
     dirs_to_remove = ["build", "dist", "__pycache__"]
-    files_to_remove = ["*.pyc"]
 
     project_root = Path(__file__).parent
 
@@ -101,10 +100,7 @@ def build_executable(onedir=False):
             return False
 
         # Verify the executable was created
-        if system == "windows":
-            exe_path = Path("dist/woop.exe")
-        else:
-            exe_path = Path("dist/woop")
+        exe_path = Path("dist/woop.exe") if system == "windows" else Path("dist/woop")
 
         if not exe_path.exists():
             print(f"\n✗ Executable not found at {exe_path}")

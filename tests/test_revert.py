@@ -1,6 +1,5 @@
 """Tests for the revert functionality."""
 
-
 import pytest
 from PIL import Image
 
