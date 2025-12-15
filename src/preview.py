@@ -46,6 +46,33 @@ class PreviewPanel:
         )
         preview_label.pack(side="left", anchor="w")
 
+        # Open in Explorer icon next to the heading
+        self.explorer_icon = Label(
+            header_frame,
+            text="🔗",
+            font=("Segoe UI", 14),
+            bg="#ffffff",
+            fg="#bdc3c7",
+            cursor="arrow",
+            padx=5,
+        )
+        self.explorer_icon.pack(side="left", anchor="w", padx=(5, 0))
+
+        # Bind click event and hover effects
+        self.explorer_icon.bind("<Button-1>", lambda e: self._open_current_folder_in_explorer())
+        self.explorer_icon.bind(
+            "<Enter>",
+            lambda e: self.explorer_icon.config(fg="#3498db") if self.current_folder else None,
+        )
+        self.explorer_icon.bind(
+            "<Leave>",
+            lambda e: (
+                self.explorer_icon.config(fg="#7f8c8d")
+                if self.current_folder
+                else self.explorer_icon.config(fg="#bdc3c7")
+            ),
+        )
+
         # Button container for right side
         button_container = Frame(header_frame, bg="#ffffff")
         button_container.pack(side="right", anchor="e")
@@ -68,25 +95,6 @@ class PreviewPanel:
             state="disabled",  # Initially disabled until a folder is selected
         )
         self.review_btn.pack(side="right", padx=(0, 10))
-
-        # Open in Explorer button with modern styling
-        self.explorer_btn = Button(
-            button_container,
-            text="📁 Open in Explorer",
-            command=self._open_current_folder_in_explorer,
-            font=("Segoe UI", 9, "bold"),
-            bg="#16a085",
-            fg="white",
-            activebackground="#138871",
-            activeforeground="white",
-            disabledforeground="#ffffff",
-            cursor="hand2",
-            relief="flat",
-            padx=15,
-            pady=5,
-            state="disabled",  # Initially disabled until a folder is selected
-        )
-        self.explorer_btn.pack(side="right", padx=(0, 10))
 
         # Refresh button with modern styling
         self.refresh_btn = Button(
@@ -299,9 +307,9 @@ class PreviewPanel:
         # Store current folder for refresh operations
         self.current_folder = folder_path
 
-        # Enable refresh and explorer buttons now that we have a folder
+        # Enable refresh button and explorer icon now that we have a folder
         self.refresh_btn.config(state="normal")
-        self.explorer_btn.config(state="normal")
+        self.explorer_icon.config(fg="#7f8c8d", cursor="hand2")
 
         # Clear previous content from both frames
         for widget in self.dirs_frame.winfo_children():
