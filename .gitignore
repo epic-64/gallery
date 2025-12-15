@@ -1,5 +1,6 @@
 .idea/
 woop.egg-info/
 build/
+dist/
 /src/chrome-dev-profile
 .coverage
