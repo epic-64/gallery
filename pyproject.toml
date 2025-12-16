@@ -14,7 +14,7 @@ woop = "woop.main:main"
 [dependency-groups]
 dev = [
     "ruff>=0.14.8",
-    "ty",
+    "ty>=0.0.2",
     "pytest>=8.4.1",
     "pytest-cov>=7.0.0",
     "types-Pillow",
