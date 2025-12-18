@@ -63,7 +63,50 @@ def clean_build_artifacts():
     print("✓ Cleanup complete\n")
 
 
-def build_executable(onedir=False):
+def verify_and_test_executable(exe_path, system):
+    """Verify the executable was created and test it."""
+    if not exe_path.exists():
+        print(f"\n✗ Executable not found at {exe_path}")
+        return False
+
+    # Make executable on Unix systems
+    if system != "windows":
+        exe_path.chmod(0o755)
+
+    print_header("Build Successful!")
+
+    print(f"✓ Executable created: {exe_path.absolute()}")
+    print(f"✓ Size: {exe_path.stat().st_size / 1024 / 1024:.1f} MB\n")
+
+    print("Distribution:")
+    print("  • The executable is standalone")
+    print("  • No Python installation required on target machine")
+    print("  • Can be copied/moved anywhere")
+
+    if system == "windows":
+        print("  • Run by double-clicking woop.exe")
+    else:
+        print("  • Run with: ./woop")
+        print(f"  • Only works on {platform.system()} with compatible system libraries")
+
+    print("\nTesting executable...")
+    try:
+        # Quick test that it runs
+        test_process = subprocess.Popen(
+            [str(exe_path), "--version"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        test_process.wait(timeout=5)
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        # GUI app might not respond to --version, that's okay
+        print("  Note: Executable created but cannot verify startup")
+        print("  (This is normal for GUI applications)")
+
+    return True
+
+
+def build_executable():
     """Build the executable using PyInstaller."""
     system = platform.system().lower()
 
@@ -103,45 +146,7 @@ def build_executable(onedir=False):
         # Verify the executable was created
         exe_path = Path("dist/woop.exe") if system == "windows" else Path("dist/woop")
 
-        if not exe_path.exists():
-            print(f"\n✗ Executable not found at {exe_path}")
-            return False
-
-        # Make executable on Unix systems
-        if system != "windows":
-            exe_path.chmod(0o755)
-
-        print_header("Build Successful!")
-
-        print(f"✓ Executable created: {exe_path.absolute()}")
-        print(f"✓ Size: {exe_path.stat().st_size / 1024 / 1024:.1f} MB\n")
-
-        print("Distribution:")
-        print("  • The executable is standalone")
-        print("  • No Python installation required on target machine")
-        print("  • Can be copied/moved anywhere")
-
-        if system == "windows":
-            print("  • Run by double-clicking woop.exe")
-        else:
-            print("  • Run with: ./woop")
-            print(f"  • Only works on {platform.system()} with compatible system libraries")
-
-        print("\nTesting executable...")
-        try:
-            # Quick test that it runs
-            test_process = subprocess.Popen(
-                [str(exe_path), "--version"],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            test_process.wait(timeout=5)
-        except (subprocess.TimeoutExpired, FileNotFoundError):
-            # GUI app might not respond to --version, that's okay
-            print("  Note: Executable created but cannot verify startup")
-            print("  (This is normal for GUI applications)")
-
-        return True
+        return verify_and_test_executable(exe_path, system)
 
     except subprocess.CalledProcessError as e:
         print(f"\n✗ Build failed with error: {e}")
@@ -183,7 +188,7 @@ Examples:
         clean_build_artifacts()
 
     # Build
-    success = build_executable(onedir=args.onedir)
+    success = build_executable()
 
     sys.exit(0 if success else 1)
 
