@@ -90,8 +90,9 @@ def build_executable(onedir=False):
         )
 
         # Print output in real-time
-        for line in process.stdout:
-            print(line, end="")
+        if process.stdout:
+            for line in process.stdout:
+                print(line, end="")
 
         process.wait()
 
@@ -130,7 +131,9 @@ def build_executable(onedir=False):
         try:
             # Quick test that it runs
             test_process = subprocess.Popen(
-                [str(exe_path), "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5
+                [str(exe_path), "--version"],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
             )
             test_process.wait(timeout=5)
         except (subprocess.TimeoutExpired, FileNotFoundError):
