@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 class ImageProcessorApp:
     """Integrated image processing application with GUI."""
 
-    def __init__(self, root):
-        self.root = root
+    def __init__(self, root: Tk) -> None:
+        self.root: Tk = root
         self.root.title("Image Processing Tool")
         self.root.geometry("1344x800")
         self.root.resizable(True, True)
@@ -37,20 +37,20 @@ class ImageProcessorApp:
         logger.info(f"Loaded config: {self.config}")
 
         # Variables
-        self.folder_path = StringVar()
-        self.base_name = StringVar()
-        self.mode = StringVar(value="process")
-        self.number_mode = StringVar(value=self.config.get("number_mode", "prefix"))
-        self.separator = StringVar(value=self.config.get("separator", " #"))
-        self.zero_fill = StringVar(value=str(self.config.get("zero_fill", 3)))
-        self.preview_panel = None  # Will be initialized in create_widgets
+        self.folder_path: StringVar = StringVar()
+        self.base_name: StringVar = StringVar()
+        self.mode: StringVar = StringVar(value="process")
+        self.number_mode: StringVar = StringVar(value=self.config.get("number_mode", "prefix"))
+        self.separator: StringVar = StringVar(value=self.config.get("separator", " #"))
+        self.zero_fill: StringVar = StringVar(value=str(self.config.get("zero_fill", 3)))
+        self.preview_panel: PreviewPanel  # Will be initialized in create_widgets
 
         self.create_widgets()
 
         # Open folder selection dialog on startup
         self.root.after(100, self.browse_folder)
 
-    def create_widgets(self):
+    def create_widgets(self) -> None:
         """Create all GUI widgets."""
 
         # Main container with two columns
@@ -298,7 +298,7 @@ class ImageProcessorApp:
         # Preview Panel (right side)
         self.preview_panel = PreviewPanel(right_frame)
 
-    def browse_folder(self):
+    def browse_folder(self) -> None:
         """Open folder browser dialog."""
         folder_selected = filedialog.askdirectory(title="Select Image Folder")
         if folder_selected:
@@ -313,7 +313,7 @@ class ImageProcessorApp:
             # Save configuration
             self._save_config()
 
-    def on_mode_change(self):
+    def on_mode_change(self) -> None:
         """Handle mode change to show/hide base name field."""
         if self.mode.get() == "revert":
             self.name_frame.pack_forget()
@@ -323,14 +323,14 @@ class ImageProcessorApp:
             self.naming_config_frame.pack(fill="x", pady=(0, 20), before=self.button_frame)
             self._update_filename_preview()
 
-    def _save_config(self):
+    def _save_config(self) -> None:
         """Save current configuration to file."""
         self.config["number_mode"] = self.number_mode.get()
         self.config["separator"] = self.separator.get()
         self.config["zero_fill"] = int(self.zero_fill.get())
         save_config(self.config)
 
-    def _update_filename_preview(self):
+    def _update_filename_preview(self) -> None:
         """Update the filename preview example and configuration summary."""
         base_name = self.base_name.get().strip()
         separator = self.separator.get()
@@ -389,7 +389,7 @@ class ImageProcessorApp:
             fg="#7f8c8d",
         ).pack(side="left")
 
-    def _increment_zerofill(self):
+    def _increment_zerofill(self) -> None:
         """Increment zero fill value if less than 4."""
         try:
             current = int(self.zero_fill.get())
@@ -398,7 +398,7 @@ class ImageProcessorApp:
         except ValueError:
             self.zero_fill.set("3")
 
-    def _decrement_zerofill(self):
+    def _decrement_zerofill(self) -> None:
         """Decrement zero fill value if greater than 1."""
         try:
             current = int(self.zero_fill.get())
@@ -407,7 +407,7 @@ class ImageProcessorApp:
         except ValueError:
             self.zero_fill.set("3")
 
-    def _create_zerofill_widgets(self, content):
+    def _create_zerofill_widgets(self, content: Frame) -> None:
         """Create zerofill input widgets with +/- buttons and preview.
 
         Args:
@@ -507,7 +507,7 @@ class ImageProcessorApp:
         )
         zerofill_hint.pack(anchor="w", pady=(4, 0))
 
-    def _open_naming_config(self):
+    def _open_naming_config(self) -> None:
         """Open a dialog to configure naming options."""
         from tkinter import Button, Entry, Frame, Label, Radiobutton, Toplevel
 
@@ -643,7 +643,7 @@ class ImageProcessorApp:
         )
         cancel_btn.pack(side="right", padx=(0, 10))
 
-    def run_operation(self):
+    def run_operation(self) -> None:
         """Execute the selected operation."""
         # Validate folder path
         folder = self.folder_path.get().strip()
@@ -664,7 +664,7 @@ class ImageProcessorApp:
         else:
             self.run_process(folder)
 
-    def run_revert(self, folder):
+    def run_revert(self, folder: str) -> None:
         """Run revert operation."""
         logger.info("Starting revert operation")
         restored_count, errors = revert_processing(folder)
@@ -685,7 +685,7 @@ class ImageProcessorApp:
         # Refresh the preview to show updated folder contents
         self.preview_panel.update(folder)
 
-    def run_process(self, folder):
+    def run_process(self, folder: str) -> None:
         """Run image processing operation."""
         base_name = self.base_name.get().strip()
         if not base_name:
