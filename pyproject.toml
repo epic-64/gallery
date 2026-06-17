@@ -1,8 +1,13 @@
 [project]
 name = "woop"
 version = "0.1.0"
-description = "Add your description here"
+description = "A Tkinter GUI for batch-renaming and organizing image files."
+readme = "README.md"
 requires-python = ">=3.13"
+license = "MIT"
+authors = [
+    { name = "epic-64", email = "105014007+epic-64@users.noreply.github.com" },
+]
 dependencies = [
     "pillow>=12.0.0",
     "piexif>=1.1.3",
@@ -10,6 +15,10 @@ dependencies = [
 
 [project.scripts]
 woop = "woop.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [

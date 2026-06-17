@@ -1,107 +1,109 @@
-# Woop - Image Processing Tool
+# woop
 
-A modern image processing application with GUI for batch renaming and organizing images.
+A small desktop GUI for **batch-renaming and organizing image files**. Point it at a
+folder, give your photos a common base name, and woop renames them with consistent,
+zero-padded numbering — preserving EXIF metadata and keeping the originals safe.
+
+Built with Python and Tkinter; runs on Windows, macOS, and Linux.
+
+## Features
+
+- 📁 Batch-rename every image in a folder with a shared base name
+- 🔢 Prefix or suffix numbering with a configurable separator and zero-padding
+- 👀 Live filename preview before you commit
+- 🖼️ Built-in image preview and review panels
+- 🧷 EXIF metadata is preserved during processing
+- ↩️ Revert a processing run to restore the original filenames
+- 💾 Remembers your settings between sessions (`~/.woop/woop_config.json`)
+
+Supported formats: `.jpg`, `.jpeg`, `.png`.
+
+## Requirements
+
+- Python 3.13+
+- [uv](https://docs.astral.sh/uv/) (recommended) or pip
 
 ## Installation
 
 ```bash
-# Clone the repository
-cd C:\Users\epic-64\PyCharmProjects\woop
+git clone <repository-url>
+cd woop
 
-# Install dependencies (using uv or pip)
+# With uv (recommended)
 uv sync
-# or
+
+# Or with pip
 pip install -e .
 ```
 
-## Running the Application
+## Usage
 
-There are several ways to run the application:
+**On Windows**, just double-click `woop.bat` — on first run it sets up the
+environment automatically and then launches the app. (It uses [uv](https://docs.astral.sh/uv/);
+if uv isn't installed, the script tells you the one-line command to install it.)
 
-### Option 1: Using the run script (Recommended)
+From a terminal, run it any of these ways:
+
 ```bash
-python run.py
+python -m woop      # as a module
+python run.py       # via the entry script
+woop                # console script (after pip install -e .)
 ```
 
-### Option 2: As a Python module
-```bash
-python -m woop
-```
-
-### Option 3: Using PyCharm
-Simply select one of the pre-configured run configurations:
-- **Woop** - Runs using `run.py`
-- **Woop (Module)** - Runs using `python -m woop`
-
-### Option 4: After installation as CLI tool
-```bash
-pip install -e .
-woop
-```
-
-## ⚠️ Important: Do NOT run files directly
-
-**Don't do this:**
-```bash
-python woop/main.py  # ❌ This will fail with ImportError
-```
-
-**Always use one of the proper entry points above** to ensure the package imports work correctly.
+A folder picker opens on startup. Choose a folder of images, set your base name and
+numbering options, preview the result, and run. Processed images are written to an
+`_output` subfolder so your originals are never overwritten in place.
 
 ## Development
 
-### Running Tests
 ```bash
-pytest tests/ -v
-```
+# Run the test suite
+pytest tests/
 
-### Running Tests with Coverage
-```bash
+# With a coverage report
 pytest tests/ --cov=woop --cov-report=html
-```
 
-### Code Quality
-```bash
-# Run linter
+# Lint and format
 ruff check woop/ tests/
-
-# Auto-fix issues
-ruff check --fix woop/ tests/
-
-# Format code
 ruff format woop/ tests/
 ```
 
-## Project Structure
+The current tests cover the core processing (`test_process.py`) and revert
+(`test_revert.py`) logic.
+
+## Building a standalone executable
+
+`build.py` produces a single-file, self-contained executable for the current
+platform using PyInstaller (no Python required on the target machine):
+
+```bash
+python build.py            # build for the current platform
+python build.py --clean    # clean artifacts, then build
+python build.py --onedir   # one-directory bundle instead of one file
+```
+
+The executable is written to `dist/` (`woop.exe` on Windows, `woop` elsewhere).
+
+## Project structure
 
 ```
 woop/
-├── woop/              # Main package
-│   ├── __init__.py
-│   ├── __main__.py    # Entry point for python -m woop
-│   ├── main.py        # Main application logic
-│   ├── config.py      # Configuration management
-│   ├── constants.py   # Constants and settings
-│   ├── preview.py     # Preview panel
-│   ├── process.py     # Image processing logic
-│   ├── revert.py      # Revert processing logic
-│   └── review.py      # Review window
-├── tests/             # Test suite
-├── run.py             # Simple entry point script
-├── pyproject.toml     # Project configuration
-└── README.md          # This file
+├── woop/             # Application package
+│   ├── __main__.py   # `python -m woop` entry point
+│   ├── main.py       # GUI and application wiring
+│   ├── process.py    # Image renaming / processing
+│   ├── revert.py     # Restore original filenames
+│   ├── preview.py    # Image preview panel
+│   ├── review.py     # Review window
+│   ├── config.py     # Persisted user settings
+│   └── constants.py  # Shared constants
+├── tests/            # Test suite
+├── build.py          # Cross-platform executable builder
+├── woop.spec         # PyInstaller spec
+├── run.py            # Simple entry-point script
+└── pyproject.toml
 ```
-
-## Features
-
-- 📁 Batch rename images with customizable numbering
-- 🔢 Prefix or suffix numbering modes
-- 🖼️ Image preview panel
-- ↩️ Revert processing to restore original filenames
-- 🎨 Modern GUI with Tkinter
-- ✅ Comprehensive test suite
 
 ## License
 
-Add your license here.
-
+Released under the [MIT License](LICENSE).
